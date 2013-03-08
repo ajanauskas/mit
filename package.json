@@ -1,0 +1,9 @@
+{
+  "name": "AJ-mit-project",
+  "description": "Sample nodejs app",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "*",
+    "mongodb": "*"
+  }
+}
