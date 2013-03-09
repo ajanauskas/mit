@@ -2,14 +2,11 @@ var User = require(__dirname + '/../models/user')
 
 module.exports.home = function(request, response){
 
-  User.find({}, function(err, users) {
-    render(users)
-  })
+  render()
 
-  function render(users) {
+  function render() {
     response.render('main/home', {
-      page_title: 'MIT website',
-      users: users
+      page_title: 'MIT website'
     })
   }
 

@@ -1,0 +1,17 @@
+extends ../base_layout
+
+block content
+  .span3
+    h2 Sign up
+    form(method='post')
+      label Login
+      input(type='text', name='user[login]')
+      label Password
+      input(type='password', name='users[password]')
+      label Repeat password
+      input(type='password', name='users[repeat_password]')
+
+      div
+        input.btn.btn-primary(type='submit')
+
+
