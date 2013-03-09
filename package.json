@@ -3,7 +3,11 @@
   "description": "Sample nodejs app",
   "version": "0.0.1",
   "dependencies": {
-    "express": "*",
-    "mongodb": "*"
+    "express": "3.0.6",
+    "mongodb": "*",
+    "mongoose": "*",
+    "underscore": "*",
+    "mongoose-timestamp": "*",
+    "jade": "*"
   }
 }
