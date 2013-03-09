@@ -1,7 +1,15 @@
 doctype 5
 html(lang="en")
   head
+    include ../public/js/jquery-1.9.1.min.js
+    include ../public/js/bootstrap.min.js
+    include ../public/css/bootstrap.min.css
+    include ../public/css/application.css
     -if (typeof page_title !== 'undefined')
       title #{page_title}
   body
-    block content
+    include _nav_bar
+    .content
+      .row-fluid
+        .span12.offset1
+          block content

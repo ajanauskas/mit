@@ -6,7 +6,6 @@ var app = express()
 
 app.set('env', process.env.NODE_ENV || 'development')
 app.use(express.logger('dev'))
-
 app.configure(function(){
   app.set('views', __dirname + '/views')
   app.set('views')
@@ -18,6 +17,7 @@ app.configure(function(){
   app.use(express.methodOverride())
   app.use(express.bodyParser())
 
+  // routes
   require('./config/routes')(app)
   app.use(app.router)
   app.use(express.static(__dirname + '/public'))
@@ -40,3 +40,5 @@ var host = config.host || 'localhost'
 
 console.log("Listening " + host + " on port " + port)
 app.listen(port, host)
+
+app.locals(require('./helpers/application'))
