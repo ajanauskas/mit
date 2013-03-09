@@ -7,5 +7,7 @@ var database = config.database || 'mit'
 var mongoose = require('mongoose')
 mongoose.connect(host, database)
 
+mongoose.set('debug', true)
+
 module.exports = mongoose
 

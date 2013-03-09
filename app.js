@@ -5,6 +5,7 @@ var express = require('express')
 var app = express()
 
 app.set('env', process.env.NODE_ENV || 'development')
+app.use(express.logger('dev'))
 
 app.configure(function(){
   app.set('views', __dirname + '/views')
@@ -20,7 +21,6 @@ app.configure(function(){
   require('./config/routes')(app)
   app.use(app.router)
   app.use(express.static(__dirname + '/public'))
-
 })
 
 app.configure('development', function(){
@@ -29,12 +29,11 @@ app.configure('development', function(){
 
 app.configure('production', function(){
   // error handling
-  app.use(function(err, req, res, next){
-    res.send(500, 'Something bad happened!')
-  });
+  // app.use(function(err, req, res, next){
+  //   res.send(500, 'Something bad happened!')
+  // });
 
 })
-
 
 var port = config.port || '3000'
 var host = config.host || 'localhost'
