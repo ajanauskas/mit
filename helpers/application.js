@@ -1,13 +1,10 @@
-var _ = require('underscore')
-var User = require('../models/user')
+var _ = require('underscore'),
+    current_user = require('../config/middleware/application').current_user
 
 module.exports = {
   current_user:
-    function(request) {
-      if (request.session.user_id)
-        return request.session.user_id
-
-      return null
+    function(request, response){
+      return response.locals.user
     },
 
   error_helper:
