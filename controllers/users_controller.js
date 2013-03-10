@@ -7,6 +7,17 @@ function digestPassword(password){
   return crypto.createHash('md5').update(password).digest("hex")
 }
 
+module.exports.index = function(request, response) {
+
+  User.find({}, function(error, users){
+    response.render('users/index', {
+      page_title: 'Users',
+      users: users
+    })
+  })
+
+}
+
 module.exports.new = function(request, response){
 
   var errors = request.flash('errors')

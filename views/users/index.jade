@@ -1,0 +1,7 @@
+extends ../base_layout
+
+block content
+  .span9
+    if (!_.isEmpty(users))
+      each user in users
+        p #{user.login}

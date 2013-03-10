@@ -29,14 +29,6 @@ app.configure('development', function(){
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }))
 })
 
-app.configure('production', function(){
-  // error handling
-  // app.use(function(err, req, res, next){
-  //   res.send(500, 'Something bad happened!')
-  // });
-
-})
-
 var port = config.port || '3000'
 var host = config.host || 'localhost'
 
@@ -44,3 +36,4 @@ console.log("Listening " + host + " on port " + port)
 app.listen(port, host)
 
 app.locals(require('./helpers/application'))
+app.locals._ = require('underscore')
