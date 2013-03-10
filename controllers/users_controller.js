@@ -1,5 +1,6 @@
 var User = require(__dirname + '/../models/user')
-var _ = require('underscore')
+    ,  _ = require('underscore')
+    , async = require('async')
 
 function digestPassword(password){
   var crypto = require('crypto');
@@ -55,5 +56,30 @@ module.exports.create = function(request, response){
     request.flash('errors', errors)
     exports.new(request, response)
   }
+
+}
+
+module.exports.login = function(request, response) {
+
+  async.auto({
+    find_user: function(callback) {
+      var user_form = {
+        login: request.body.login,
+        password: digestPassword(request.body.password)
+      }
+
+      User.find(user_form, callback)
+    },
+
+    render_response: ['find_user', function(callback, result) {
+      var user = result.find_user
+      if (user.length) {
+        request.session.user_id = user[0]._id
+        response.redirect('/')
+      } else {
+        response.render('woop de poo')
+      }
+    }]
+  })
 
 }

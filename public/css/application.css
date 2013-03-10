@@ -1,2 +1,7 @@
-.content {
+.navbar form {
+  margin: 0;
+}
+
+.navbar form input {
+  margin: 5px;
 }

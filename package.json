@@ -9,6 +9,7 @@
     "underscore": "*",
     "jade": "*",
     "connect-flash": "*",
-    "express-resource": "1.0.0"
+    "express-resource": "1.0.0",
+    "async": "*"
   }
 }

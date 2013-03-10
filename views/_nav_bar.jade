@@ -14,3 +14,8 @@
             a(href='/users/new')
               i
               | Register
+        .pull-right
+          form.form-inline(method='post', action='/users/login')
+            input.input-small(type="text", name='login', placeholder="Login")
+            input.input-small(type="password", name='password', placeholder="Password")
+            input.btn.btn-primary(type="submit", value="Sign in")

@@ -1,7 +1,9 @@
+var _ = require('underscore')
+
 module.exports = function(app){
 
   // load user if id is present in session
-  app.all('*', require('./middleware/application').load_user)
+  app.use(require('./middleware/application').load_user)
 
   // routes
   var controllerPath = __dirname + '/../controllers/'
@@ -10,5 +12,6 @@ module.exports = function(app){
 
   var user = require(controllerPath + 'users_controller')
   app.resource('users', user)
+  app.post('/users/login', user.login)
 
 }

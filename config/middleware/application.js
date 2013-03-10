@@ -1,17 +1,20 @@
-var User = ('../../models/user')
+var User = require('../../models/user')
+    , ObjectId = require('mongoose').Types.ObjectId
 
 module.exports = {
+
   load_user:
     function(request, response, next) {
       if (request.session.user_id) {
-        User.find({ "_id": request.session.user_id}, function(error, user){
-          response.locals.user = user
+        User.find({ "_id": new ObjectId(request.session.user_id)}, function(error, users){
+          if (!error)
+            response.locals.user = users[0]
+
           next()
         })
+      } else {
+        next()
       }
-      next()
     }
 
 }
-
-
