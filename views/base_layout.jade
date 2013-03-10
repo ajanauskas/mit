@@ -1,10 +1,10 @@
 doctype 5
 html(lang="en")
   head
-    include ../public/js/jquery-1.9.1.min.js
-    include ../public/js/bootstrap.min.js
-    include ../public/css/bootstrap.min.css
-    include ../public/css/application.css
+    script(src='/js/jquery-1.9.1.min.js')
+    script(src='/js/bootstrap.min.js')
+    link(href='/css/bootstrap.min.css', rel='stylesheet', type='text/css')
+    link(href='/css/application.css', rel='stylesheet', type='text/css')
     -if (typeof page_title !== 'undefined')
       title #{page_title}
   body
@@ -13,3 +13,6 @@ html(lang="en")
       .row-fluid
         .span12.offset1
           block content
+
+    script(src='/js/application.js')
+    block scripts

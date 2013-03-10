@@ -83,3 +83,11 @@ module.exports.login = function(request, response) {
   })
 
 }
+
+module.exports.logout = function(request, response) {
+
+  request.session.user_id = null
+
+  response.redirect('/')
+
+}

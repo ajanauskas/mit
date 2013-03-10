@@ -10,12 +10,19 @@
             a(href='/')
               i.icon-home
               | Home
+          if (typeof user_ui === 'undefined')
           li
             a(href='/users/new')
               i
               | Register
+
+      if (typeof user_ui === 'undefined')
         .pull-right
           form.form-inline(method='post', action='/users/login')
             input.input-small(type="text", name='login', placeholder="Login")
             input.input-small(type="password", name='password', placeholder="Password")
             input.btn.btn-primary(type="submit", value="Sign in")
+      else
+        .pull-right
+          form(action='/users/logout', method='post')
+            input.btn.btn-primary(type='submit', value='Logout')

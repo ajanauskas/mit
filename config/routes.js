@@ -13,5 +13,6 @@ module.exports = function(app){
   var user = require(controllerPath + 'users_controller')
   app.resource('users', user)
   app.post('/users/login', user.login)
+  app.post('/users/logout', user.logout)
 
 }

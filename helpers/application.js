@@ -2,10 +2,6 @@ var _ = require('underscore'),
     current_user = require('../config/middleware/application').current_user
 
 module.exports = {
-  current_user:
-    function(request, response){
-      return response.locals.user
-    },
 
   error_helper:
     function(errors) {
