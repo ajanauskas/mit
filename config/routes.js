@@ -2,10 +2,9 @@ module.exports = function(app){
 
   var controllerPath = __dirname + '/../controllers/'
   var main = require(controllerPath + 'main_controller')
-  app.get('/', main.home)
+  app.resource(main)
 
   var user = require(controllerPath + 'users_controller')
-  app.get('/users/new', user.new)
-  app.post('/users/new', user.create)
+  app.resource('users', user)
 
 }

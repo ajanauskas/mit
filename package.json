@@ -8,6 +8,7 @@
     "mongoose": "*",
     "underscore": "*",
     "jade": "*",
-    "connect-flash": "*"
+    "connect-flash": "*",
+    "express-resource": "1.0.0"
   }
 }

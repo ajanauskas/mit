@@ -6,7 +6,7 @@ block content
     != error_helper(errors)
     h2 Sign up
 
-    form(method='post')
+    form(method='post', action='/users')
       label Login
       input(type='text', name='user[login]')
       label Password

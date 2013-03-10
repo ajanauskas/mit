@@ -1,6 +1,4 @@
-var User = require(__dirname + '/../models/user')
-
-module.exports.home = function(request, response){
+module.exports.index = function(request, response){
 
   render()
 

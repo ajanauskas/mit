@@ -2,6 +2,7 @@ var fs = require('fs')
 var config = JSON.parse(fs.readFileSync('./config/config.json'))
 
 var express = require('express')
+var Resource = require('express-resource')
 var app = express()
 
 app.set('env', process.env.NODE_ENV || 'development')
