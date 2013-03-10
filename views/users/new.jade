@@ -1,8 +1,11 @@
 extends ../base_layout
 
 block content
-  .span3
+
+  .span6
+    != error_helper(errors)
     h2 Sign up
+
     form(method='post')
       label Login
       input(type='text', name='user[login]')

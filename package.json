@@ -7,6 +7,7 @@
     "mongodb": "*",
     "mongoose": "*",
     "underscore": "*",
-    "jade": "*"
+    "jade": "*",
+    "connect-flash": "*"
   }
 }

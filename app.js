@@ -13,6 +13,7 @@ app.configure(function(){
 
   app.use(express.cookieParser());
   app.use(express.session({ secret: "y4YMuhZnC9ntW050cjPT" }));
+  app.use(require('connect-flash')())
 
   app.use(express.methodOverride())
   app.use(express.bodyParser())
