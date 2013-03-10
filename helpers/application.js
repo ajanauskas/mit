@@ -9,7 +9,7 @@ module.exports = {
       var output = ""
 
       _.map(errors, function(error, field) {
-        output += "<div><strong>" + field + ": </strong>" + error + "</div>"
+        output += "<div>" + error.message + "</div>"
       })
 
       output = "<div class='alert alert-error'>"
