@@ -23,6 +23,11 @@ module.exports.create = function(request, response){
   var errors = {}
   var user_body = request.body.user
 
+  var user_form = {
+    login: user_body.login,
+    password: digestPassword(user_body.password)
+  }
+
   if (_.isEmpty(user_body.password))
     errors['Password'] = { message: "Password can't be empty" }
   else if (user_body.password.length < 5 && user_body.password.length > 15)
@@ -30,14 +35,6 @@ module.exports.create = function(request, response){
 
   if (user_body.password !== user_body.repeat_password)
     errors['Password'] = { message: 'Password and confirm password do not match' }
-
-//  if (errors)
- //   render_failure(errors)
-
-  var user_form = {
-    login: user_body.login,
-    password: digestPassword(user_body.password)
-  }
 
   var user = new User(user_form)
   user.save(function(error){
@@ -61,6 +58,11 @@ module.exports.create = function(request, response){
 
 module.exports.login = function(request, response) {
 
+  if (request.method === 'GET') {
+    response.render('users/login')
+    return
+  }
+
   async.auto({
     find_user: function(callback) {
       var user_form = {
@@ -77,7 +79,7 @@ module.exports.login = function(request, response) {
         request.session.user_id = user[0]._id
         response.redirect('/')
       } else {
-        response.render('woop de poo')
+        response.render('users/login')
       }
     }]
   })
