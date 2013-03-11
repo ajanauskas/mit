@@ -7,21 +7,21 @@ module.exports.index = function(request, response) {
 
 module.exports.create = function(request, response) {
 
-  if (!response.locals.user_ui) {
+  if (!request.user) {
     response.send(JSON.stringify({ status: 'ERROR', error_message: 'Authorization not granted' }))
     return
   }
 
   var message_form = {
     body: request.body.body,
-    sender: response.locals.user_ui._id
+    sender: request.user._id
   }
 
   var message = new Message(message_form).save(function(error){
     if (error) {
       response.send(JSON.stringify({ status: 'ERROR', error_message: 'Something terrible happened' }))
     } else {
-      response.locals.io.of('/messages').emit('new message', { status: 'OK', sender: response.locals.user_ui.login, body: message_form.body })
+      response.locals.io.of('/messages').emit('new message', { status: 'OK', sender: request.user.login, body: message_form.body })
       response.send({ status: 'OK' })
     }
   })

@@ -1,10 +1,19 @@
 var _ = require('underscore')
-    , application_middleware = require('./middleware/application')
 
-module.exports = function(app){
+module.exports = function(app, passport){
 
-  // load user if id is present in session
-//  app.use(application_middleware.load_user)
+  // TODO: app.use doesnt work! Why?
+
+  app.all('*', function(req, res, next){
+
+    if (!req.user)
+      res.locals.user = null
+
+    else
+      res.locals.user = req.user
+
+    next()
+  })
 
   // routes
   var controllerPath = __dirname + '/../controllers/'
@@ -13,8 +22,17 @@ module.exports = function(app){
 
   var user = require(controllerPath + 'users_controller')
   app.resource('users', user)
-  app.post('/users/login', user.login)
-  app.post('/users/logout', user.logout)
+
+  app.post('/users/login',
+    passport.authenticate('local', { failureRedirect: '/login', failureFlash: true }),
+    function(req, res) {
+      res.redirect('/');
+    });
+
+  app.post('/users/logout', function(req, res){
+    req.logout();
+    res.redirect('/');
+  });
 
   var message = require(controllerPath + 'messages_controller')
   app.resource('messages', message)

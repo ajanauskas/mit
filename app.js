@@ -47,19 +47,20 @@ passport.use(new LocalStrategy(
 // global locals
 app.use(function(request, response, next){
   response.locals.io = io
-  response.locals.passport = passport
   next()
 })
 
 app.set('env', process.env.NODE_ENV || 'development')
 app.use(express.logger('dev'))
 app.configure(function(){
+  app.use(express.static(__dirname + '/public'))
+
   app.set('views', __dirname + '/views')
   app.set('views')
   app.set('view engine', 'jade')
 
   app.use(express.cookieParser());
-  app.use(express.session({ secret: "y4YMuhZnC9ntW050cjPT", store: new RedisStore }));
+  app.use(express.session({ secret: "y4YMuhZnC9ntW050cjPT", store: new RedisStore}));
   app.use(require('connect-flash')())
 
   app.use(express.methodOverride())
@@ -69,9 +70,8 @@ app.configure(function(){
   app.use(passport.session());
 
   // routes
-  require('./config/routes')(app)
   app.use(app.router)
-  app.use(express.static(__dirname + '/public'))
+  require('./config/routes')(app, passport)
 })
 
 app.configure('development', function(){

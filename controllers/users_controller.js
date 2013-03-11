@@ -66,31 +66,3 @@ module.exports.create = function(request, response){
   }
 
 }
-
-module.exports.login = function(request, response, next) {
-
-  var passport = response.locals.passport
-
-  passport.authenticate('local', function(err, user, info) {
-    if (err)
-      return next(err)
-
-    if (!user)
-      return response.redirect('/')
-
-    request.LogIn(user, function(err){
-      if (err)
-        return next(err)
-
-      return response.redirect('/')
-    })
-  })(request, response, next)
-
-}
-
-module.exports.logout = function(request, response) {
-
-  request.logout()
-  request.redirect('/')
-
-}
