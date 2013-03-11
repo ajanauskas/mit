@@ -1,7 +1,7 @@
 var mongoose = require(__dirname + '/../config/mongo')
 
 var MessageSchema = mongoose.Schema({
-  message: { type: String, required: true },
+  body: { type: String, required: true },
   created_at: { type: Date, default: (new Date()).getTime() },
   sender: { type: mongoose.Schema.ObjectId, ref: 'user' }
 })

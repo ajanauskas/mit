@@ -11,4 +11,5 @@
   height: 300px;
   background: white;
   cursor: default;
+  overflow: hidden;
 }

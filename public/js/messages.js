@@ -1,10 +1,52 @@
 (function($){
-  var socket = io.connect();
+  var messages_socket = io.connect('http://localhost:3000/messages');
+  var $chat = $('#chat')
 
-  socket.on('news', function (data) {
-    console.log(data);
-    socket.emit('my other event', { my: 'data' });
-  });
+  function appendMessage(message){
+    var new_line = '\n';
+
+    if ($chat.text() === '')
+      new_line = '';
+
+    $chat.text($chat.text() + new_line + message.sender.login + ': ' + message.body)
+  }
+
+  messages_socket.on('messages', function(data){
+    if (data.status !== 'OK')
+      return
+
+    $chat.text('');
+    for (var i = 0; i < data.messages.length; i++) {
+      appendMessage(data.messages[i])
+    }
+  })
+
+  messages_socket.on('new message', function(data){
+    if (data.status !== 'OK')
+      return
+
+    var new_line = '\n';
+
+    if ($chat.text() === '')
+      new_line = '';
+
+    $chat.text($chat.text() + new_line + data.sender + ': ' + data.body)
+  })
+
+  $('#chat-form').submit(function(event){
+    event.preventDefault();
+    var $this = $(this);
+
+    $.ajax({
+      url: $this.attr('action'),
+      type: 'POST',
+      data: $this.serialize(),
+      success: function(data){
+        if (data.status === 'OK')
+          $this.find("input[type='text']").val("");
+      }
+    })
+  })
 
 })(jQuery)
 

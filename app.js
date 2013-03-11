@@ -5,6 +5,18 @@ var express = require('express')
 var Resource = require('express-resource')
 var app = express()
 
+var port = config.port || '3000'
+   , host = config.host || 'localhost'
+   , http = require('http')
+   , server = http.createServer(app)
+   , io = require('socket.io').listen(server)
+
+// set io to be global variable per request
+app.use(function(request, response, next){
+  response.locals.io = io
+  next()
+})
+
 app.set('env', process.env.NODE_ENV || 'development')
 app.use(express.logger('dev'))
 app.configure(function(){
@@ -31,20 +43,11 @@ app.configure('development', function(){
 
 console.log("Listening " + host + " on port " + port)
 
-var port = config.port || '3000'
-   , host = config.host || 'localhost'
-   , http = require('http')
-   , server = http.createServer(app)
-   , io = require('socket.io').listen(server)
-
 server.listen(port, host)
 
-io.sockets.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
-});
+require('./config/socket')(io)
 
 app.locals(require('./helpers/application'))
 app.locals._ = require('underscore')
+
+
