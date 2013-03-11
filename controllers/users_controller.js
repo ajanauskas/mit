@@ -67,40 +67,30 @@ module.exports.create = function(request, response){
 
 }
 
-module.exports.login = function(request, response) {
+module.exports.login = function(request, response, next) {
 
-  if (request.method === 'GET') {
-    response.render('users/login')
-    return
-  }
+  var passport = response.locals.passport
 
-  async.auto({
-    find_user: function(callback) {
-      var user_form = {
-        login: request.body.login,
-        password: digestPassword(request.body.password)
-      }
+  passport.authenticate('local', function(err, user, info) {
+    if (err)
+      return next(err)
 
-      User.find(user_form, callback)
-    },
+    if (!user)
+      return response.redirect('/')
 
-    render_response: ['find_user', function(callback, result) {
-      var user = result.find_user
-      if (user.length) {
-        request.session.user_id = user[0]._id
-        response.redirect('/')
-      } else {
-        response.render('users/login')
-      }
-    }]
-  })
+    request.LogIn(user, function(err){
+      if (err)
+        return next(err)
+
+      return response.redirect('/')
+    })
+  })(request, response, next)
 
 }
 
 module.exports.logout = function(request, response) {
 
-  request.session.user_id = null
-
-  response.redirect('/')
+  request.logout()
+  request.redirect('/')
 
 }

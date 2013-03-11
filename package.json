@@ -12,6 +12,8 @@
     "express-resource": "1.0.0",
     "async": "*",
     "socket.io": "0.9.11",
-    "socket.io-client": "*"
+    "connect-redis": "1.4.5",
+    "passport": "0.1.16",
+    "passport-local": "0.1.6"
   }
 }
