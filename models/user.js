@@ -5,6 +5,7 @@ var UserSchema = mongoose.Schema({
   login: { type: String, unique: true, required: true },
   password: { type: String, required: true },
   roles: Array,
+  messages: [{ type: mongoose.Schema.ObjectId, ref: 'message' }],
   created_at: { type: Date, default: (new Date()).getTime() }
 })
 

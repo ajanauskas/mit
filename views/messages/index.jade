@@ -1,0 +1,13 @@
+extends ../base_layout
+
+block content
+  .span6
+    textarea#chat.span12(readonly="readonly")
+
+    form.inline-form(action='/messages/new', method='post')
+      input.span10(type='text', placeholder='Message...')
+      input.btn.btn-primary.pull-right(type='submit', value='Submit')
+
+block scripts
+  script(src='/socket.io/socket.io.js')
+  script(src='/js/messages.js')

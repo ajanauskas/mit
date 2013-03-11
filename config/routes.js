@@ -15,4 +15,7 @@ module.exports = function(app){
   app.post('/users/login', user.login)
   app.post('/users/logout', user.logout)
 
+  var message = require(controllerPath + 'messages_controller')
+  app.resource('messages', message)
+
 }

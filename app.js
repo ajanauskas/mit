@@ -29,11 +29,22 @@ app.configure('development', function(){
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }))
 })
 
-var port = config.port || '3000'
-var host = config.host || 'localhost'
-
 console.log("Listening " + host + " on port " + port)
-app.listen(port, host)
+
+var port = config.port || '3000'
+   , host = config.host || 'localhost'
+   , http = require('http')
+   , server = http.createServer(app)
+   , io = require('socket.io').listen(server)
+
+server.listen(port, host)
+
+io.sockets.on('connection', function (socket) {
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
+});
 
 app.locals(require('./helpers/application'))
 app.locals._ = require('underscore')

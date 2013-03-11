@@ -10,6 +10,8 @@
     "jade": "*",
     "connect-flash": "*",
     "express-resource": "1.0.0",
-    "async": "*"
+    "async": "*",
+    "socket.io": "0.9.11",
+    "socket.io-client": "*"
   }
 }
