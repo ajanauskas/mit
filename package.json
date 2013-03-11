@@ -12,6 +12,7 @@
     "express-resource": "1.0.0",
     "async": "*",
     "socket.io": "0.9.11",
-    "socket.io-client": "*"
+    "socket.io-client": "*",
+    "connect-redis": "1.4.5"
   }
 }

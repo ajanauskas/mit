@@ -2,14 +2,14 @@ var fs = require('fs')
 var config = JSON.parse(fs.readFileSync('./config/config.json'))
 
 var express = require('express')
-var Resource = require('express-resource')
-var app = express()
-
-var port = config.port || '3000'
-   , host = config.host || 'localhost'
-   , http = require('http')
-   , server = http.createServer(app)
-   , io = require('socket.io').listen(server)
+    , Resource = require('express-resource')
+    , app = express()
+    , port = config.port || '3000'
+    , host = config.host || 'localhost'
+    , http = require('http')
+    , server = http.createServer(app)
+    , io = require('socket.io').listen(server)
+    , RedisStore = require('connect-redis')(express)
 
 // set io to be global variable per request
 app.use(function(request, response, next){
@@ -25,7 +25,7 @@ app.configure(function(){
   app.set('view engine', 'jade')
 
   app.use(express.cookieParser());
-  app.use(express.session({ secret: "y4YMuhZnC9ntW050cjPT" }));
+  app.use(express.session({ secret: "y4YMuhZnC9ntW050cjPT", store: new RedisStore }));
   app.use(require('connect-flash')())
 
   app.use(express.methodOverride())
