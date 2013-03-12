@@ -2,19 +2,6 @@ var _ = require('underscore')
 
 module.exports = function(app, passport){
 
-  // TODO: app.use doesnt work! Why?
-
-  app.all('*', function(req, res, next){
-
-    if (!req.user)
-      res.locals.user = null
-
-    else
-      res.locals.user = req.user
-
-    next()
-  })
-
   // routes
   var controllerPath = __dirname + '/../controllers/'
   var main = require(controllerPath + 'main_controller')

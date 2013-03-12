@@ -15,6 +15,7 @@ var express = require('express')
     , User = require('./models/user')
     , ObjectId = require('mongoose').Types.ObjectId
     , crypto = require('crypto')
+    , middlewares = require('./config/middleware/application')
 
 passport.serializeUser(function(user, callback){
   callback(null, user._id)
@@ -68,6 +69,9 @@ app.configure(function(){
 
   app.use(passport.initialize());
   app.use(passport.session());
+
+  // configure application middlewares before routes
+  app.use(middlewares.load_user)
 
   // routes
   app.use(app.router)
