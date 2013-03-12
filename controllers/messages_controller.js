@@ -8,7 +8,7 @@ module.exports.index = function(request, response) {
 module.exports.create = function(request, response) {
 
   if (!request.user) {
-    response.send(JSON.stringify({ status: 'ERROR', error_message: 'Authorization not granted' }))
+    response.send({ status: 'ERROR', error_message: 'Authorization not granted' })
     return
   }
 
@@ -19,7 +19,7 @@ module.exports.create = function(request, response) {
 
   var message = new Message(message_form).save(function(error){
     if (error) {
-      response.send(JSON.stringify({ status: 'ERROR', error_message: 'Something terrible happened' }))
+      response.send({ status: 'ERROR', error_message: 'Something terrible happened' })
     } else {
       response.locals.io.of('/messages').emit('new message', { status: 'OK', sender: request.user.login, body: message_form.body })
       response.send({ status: 'OK' })

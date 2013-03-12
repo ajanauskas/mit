@@ -8,7 +8,8 @@
     if ($chat.text() === '')
       new_line = '';
 
-    $chat.text($chat.text() + new_line + message.sender.login + ': ' + message.body)
+    $chat.text($chat.text() + new_line + message.sender.login + ': ' + message.body);
+    $chat.scrollTop($chat[0].scrollHeight);
   }
 
   messages_socket.on('messages', function(data){
@@ -30,7 +31,8 @@
     if ($chat.text() === '')
       new_line = '';
 
-    $chat.text($chat.text() + new_line + data.sender + ': ' + data.body)
+    $chat.text($chat.text() + new_line + data.sender + ': ' + data.body);
+    $chat.scrollTop($chat[0].scrollHeight);
   })
 
   $('#chat-form').submit(function(event){
@@ -43,7 +45,9 @@
       data: $this.serialize(),
       success: function(data){
         if (data.status === 'OK')
-          $this.find("input[type='text']").val("");
+          $this.find("input[type='text']").val("")
+        else if (data.error_message)
+          alert(data.error_message)
       }
     })
   })
