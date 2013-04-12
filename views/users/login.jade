@@ -2,6 +2,7 @@ extends ../base_layout
 
 block content
   .span6
+    != error_helper(errors)
     h2 Login
 
     form(method='post', action='/users/login')

@@ -3,7 +3,6 @@ var config = JSON.parse(fs.readFileSync('./config/config.json'))
 
 var express = require('express')
     , Resource = require('express-resource')
-    , RedisStore = require('connect-redis')(express)
     , app = express()
     , port = config.port || '3000'
     , host = config.host || 'localhost'
@@ -15,6 +14,8 @@ var express = require('express')
     , User = require('./models/user')
     , ObjectId = require('mongoose').Types.ObjectId
     , crypto = require('crypto')
+    , MongoStore = require('connect-mongo')(express)
+    , flash = require('connect-flash')
     , middlewares = require('./config/middleware/application')
 
 passport.serializeUser(function(user, callback){
@@ -61,8 +62,14 @@ app.configure(function(){
   app.set('view engine', 'jade')
 
   app.use(express.cookieParser());
-  app.use(express.session({ secret: "y4YMuhZnC9ntW050cjPT", store: new RedisStore}));
-  app.use(require('connect-flash')())
+//  app.use(express.session({ secret: "y4YMuhZnC9ntW050cjPT", store: new RedisStore}));
+  app.use(express.session({
+    secret: "y4YMuhZnC9ntW050cjPT",
+    cookies: { maxAge: 60000 },
+    store: new MongoStore({
+      db: 'mit'
+    })
+  }))
 
   app.use(express.methodOverride())
   app.use(express.bodyParser())
@@ -74,11 +81,13 @@ app.configure(function(){
   app.use(middlewares.load_user)
 
   // routes
+  app.use(flash())
   app.use(app.router)
   require('./config/routes')(app, passport)
 })
 
 app.configure('development', function(){
+  app.use(express.logger())
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }))
 })
 

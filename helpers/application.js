@@ -10,8 +10,8 @@ module.exports = {
 
       var output = ""
 
-      _.map(errors, function(error, field) {
-        output += "<div>" + error.message + "</div>"
+      _.map(errors, function(error) {
+        output += "<div>" + error + "</div>"
       })
 
       output = "<div class='alert alert-error'>"

@@ -15,6 +15,11 @@
               a(href='/users/new')
                 i
                 | Register
+          else
+            li
+              a(href='/rooms')
+                i
+                | Chat rooms
 
       if (!user)
         .pull-right

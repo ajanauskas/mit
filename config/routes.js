@@ -9,19 +9,17 @@ module.exports = function(app, passport){
 
   var user = require(controllerPath + 'users_controller')
   app.resource('users', user)
-
+  // login
   app.post('/users/login',
-    passport.authenticate('local', { failureRedirect: '/login', failureFlash: true }),
-    function(req, res) {
-      res.redirect('/');
-    });
+      passport.authenticate('local',
+        {
+          failureRedirect: '/users/login',
+          failureFlash: true,
+          successFlash: 'Successfully logged in'
+        }
+      ), user.login_callback)
 
-  app.post('/users/logout', function(req, res){
-    req.logout();
-    res.redirect('/');
-  });
-
-  var message = require(controllerPath + 'messages_controller')
-  app.resource('messages', message)
+  app.post('/users/logout', user.logout)
+  app.get('/users/login', user.login)
 
 }
