@@ -3,16 +3,25 @@ html(lang="en")
   head
     script(src='/js/jquery-1.9.1.min.js')
     script(src='/js/bootstrap.min.js')
+    script(src='/js/underscore.min.js')
+    script(src='/js/backbone.0.9.10.min.js')
+
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+
     link(href='/css/bootstrap.min.css', rel='stylesheet', type='text/css')
+    link(href='/css/bootstrap-responsive.min.css', rel='stylesheet', type='text/css')
     link(href='/css/application.css', rel='stylesheet', type='text/css')
+
     -if (typeof page_title !== 'undefined')
       title #{page_title}
   body
     include _nav_bar
-    .content
+    .container-fluid
       .row-fluid
-        .span12.offset1
+        aside#sidebar.span2
+          block sidebar
+        section#content.span10
           block content
 
-    script(src='/js/application.js')
     block scripts
+      script(src='/js/application.js')
