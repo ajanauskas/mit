@@ -1,14 +1,16 @@
 var _ = require('underscore')
     , controllerPath = __dirname + '/../controllers/'
 
-module.exports = function(app, passport){
+module.exports = function(app, passport, auth){
 
   // routes
   var main = require(controllerPath + 'main_controller')
-  app.resource(main)
+  app.get('/', main.index)
 
   var user = require(controllerPath + 'users_controller')
-  app.resource('users', user)
+  app.get('/users/index', user.index)
+  app.get('/users/new', user.new)
+  app.post('/users/create', user.create)
   // login
   app.post(
     '/users/login',
@@ -17,13 +19,15 @@ module.exports = function(app, passport){
         failureRedirect: '/users/login',
         failureFlash: true,
         successFlash: 'Successfully logged in'
-      }
-    ), user.login_callback
-  )
+      }), user.login_callback)
+
   app.post('/users/logout', user.logout)
   app.get('/users/login', user.login)
 
   var room = require(controllerPath + 'rooms_controller')
-  app.resource('rooms', room)
+  app.get('/rooms', auth.requiresLogin, room.index)
+  app.get('/rooms.json', auth.requiresLogin, room.index)
+  app.post('/rooms', auth.requiresLogin, room.index)
+  app.post('/rooms.json', auth.requiresLogin, room.index)
 
 }

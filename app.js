@@ -17,6 +17,7 @@ var express = require('express')
     , MongoStore = require('connect-mongo')(express)
     , flash = require('connect-flash')
     , middlewares = require('./config/middleware/application')
+    , auth = require('./config/middleware/authorization')
 
 passport.serializeUser(function(user, callback){
   callback(null, user._id)
@@ -83,7 +84,7 @@ app.configure(function(){
   // routes
   app.use(flash())
   app.use(app.router)
-  require('./config/routes')(app, passport)
+  require('./config/routes')(app, passport, auth)
 })
 
 app.configure('development', function(){
