@@ -23,3 +23,28 @@ module.exports.index = function(request, response) {
   }
 
 }
+
+module.exports.create = function(request, response) {
+
+  if (request.format === 'json') {
+    var roomForm = {
+      title: request.body.title
+    }
+
+    var room = new Room(roomForm)
+    room.save(function(error){
+      if (error) {
+        response.send('Error creating room')
+      } else {
+        response.send(JSON.stringify({
+          _id: room._id,
+          title: room.title
+        }))
+      }
+    })
+
+  } else {
+    responde.send('JSON format only supported');
+  }
+
+}
