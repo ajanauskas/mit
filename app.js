@@ -11,6 +11,7 @@ var express = require('express')
     , io = require('socket.io').listen(server)
     , passport = require('passport')
     , LocalStrategy = require('passport-local').Strategy
+    , passportIo = require('passport.socketio')
     , MongoStore = require('connect-mongo')(express)
     , flash = require('connect-flash')
     , middlewares = require('./config/middleware/application')
@@ -35,14 +36,25 @@ app.configure(function(){
   app.set('views')
   app.set('view engine', 'jade')
 
+  var sessionStore = new MongoStore({
+    db: 'mit'
+  })
+
   app.use(express.cookieParser());
   app.use(express.session({
+    key: "chatifier-session",
     secret: "y4YMuhZnC9ntW050cjPT",
     cookies: { maxAge: 60000 },
-    store: new MongoStore({
-      db: 'mit'
-    })
+    store: sessionStore
   }))
+
+  // set socket IO authorization
+  // TODO: isolate this code
+  io.set("authorization", passportIo.authorize({
+    key:    'chatifier-session',
+    secret: "y4YMuhZnC9ntW050cjPT",
+    store:   sessionStore
+  }));
 
   app.use(express.methodOverride())
   app.use(express.bodyParser())

@@ -3,7 +3,6 @@ var mongoose = require(__dirname + '/../config/mongo'),
 
 var RoomSchema = mongoose.Schema({
   title: { type: String, unique: true, required: true},
-  messages: [{ type: mongoose.Schema.ObjectId, ref: 'message' }],
   created_at: { type: Date, default: (new Date()).getTime()}
 })
 

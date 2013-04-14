@@ -38,21 +38,41 @@
 
   var MessageCollection = Backbone.Collection.extend({
     model: Message,
+    socket: null,
 
     initialize: function(roomId) {
+      _.bindAll(this, 'populateFromSocket', 'addFromSocket');
+
+      this.socket = io.connect('http://localhost:3000/messages');
+      this.socket.on('messages', this.populateFromSocket);
+      this.socket.on('new message', this.addFromSocket);
+
       this.setRoomId(roomId);
     },
 
     setRoomId: function(roomId) {
       this.roomId = roomId;
+    },
+
+    fetch: function() {
+      this.socket.emit('all', { roomId: this.roomId });
+    },
+
+    populateFromSocket: function(data) {
+      this.reset();
+      this.add(data);
+    },
+
+    addFromSocket: function(data) {
+      this.add(data);
     }
 
   })
 
   var ChatView = Backbone.View.extend({
 
-    room: new Room(),
-    messages: new MessageCollection(),
+    room: null,
+    messages: null,
 
     events: {
     },
@@ -62,13 +82,19 @@
 
       this.$el = options.$el;
 
-      this.listenTo(this.room, 'change', this.roomsChanged);
-
       this.$messagesContainer = $("<textarea class='span8' id='chat' />");
       this.$submitForm = $("<form class='span8'>"
         + "<input class='span10 pull-left' />"
         + "<input type='submit' class='span2 btn btn-primary pull-right' />"
         + "</form>");
+
+      this.room = new Room();
+      this.messages = new MessageCollection();
+
+      this.listenTo(this.room, 'change', this.roomsChanged);
+
+      this.messages.fetch();
+
     },
 
     render: function() {
