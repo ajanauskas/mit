@@ -11,41 +11,14 @@ var express = require('express')
     , io = require('socket.io').listen(server)
     , passport = require('passport')
     , LocalStrategy = require('passport-local').Strategy
-    , User = require('./models/user')
-    , ObjectId = require('mongoose').Types.ObjectId
-    , crypto = require('crypto')
     , MongoStore = require('connect-mongo')(express)
     , flash = require('connect-flash')
     , middlewares = require('./config/middleware/application')
     , auth = require('./config/middleware/authorization')
 
-passport.serializeUser(function(user, callback){
-  callback(null, user._id)
-})
-
-passport.deserializeUser(function(_id, callback) {
-  User.findOne({ "_id": new ObjectId(_id) }, function(err, user){
-    callback(err, user)
-  })
-})
-
-passport.use(new LocalStrategy(
-  function(username, password, callback) {
-    process.nextTick(function() {
-      User.findOne( { "login": username, "password": crypto.createHash('md5').update(password).digest("hex") },
-        function(err, user){
-          if (err)
-            return callback(err)
-
-          if (!user)
-            return callback(null, false, { message: "Bad username or password" })
-
-          return callback(null, user)
-        }
-      )
-    })
-  })
-)
+passport.serializeUser(auth.userSerialization)
+passport.deserializeUser(auth.userDeserialization)
+passport.use(new LocalStrategy(auth.localStrategy))
 
 // global locals
 app.use(function(request, response, next){
@@ -63,7 +36,6 @@ app.configure(function(){
   app.set('view engine', 'jade')
 
   app.use(express.cookieParser());
-//  app.use(express.session({ secret: "y4YMuhZnC9ntW050cjPT", store: new RedisStore}));
   app.use(express.session({
     secret: "y4YMuhZnC9ntW050cjPT",
     cookies: { maxAge: 60000 },

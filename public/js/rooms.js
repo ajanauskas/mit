@@ -26,17 +26,43 @@
     comparator: 'title'
   })
 
+  var Message = Backbone.Model.extend({
+    idAttribute: "_id",
+
+    defaults: {
+      _id: null,
+      body: "",
+      created_at: new Date()
+    }
+  })
+
+  var MessageCollection = Backbone.Collection.extend({
+    model: Message,
+
+    initialize: function(roomId) {
+      this.setRoomId(roomId);
+    },
+
+    setRoomId: function(roomId) {
+      this.roomId = roomId;
+    }
+
+  })
+
   var ChatView = Backbone.View.extend({
 
-    model: new Room(),
+    room: new Room(),
+    messages: new MessageCollection(),
 
     events: {
     },
 
     initialize: function(options){
+      _.bindAll(this, 'roomsChanged');
+
       this.$el = options.$el;
 
-      this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.room, 'change', this.roomsChanged);
 
       this.$messagesContainer = $("<textarea class='span8' id='chat' />");
       this.$submitForm = $("<form class='span8'>"
@@ -46,15 +72,20 @@
     },
 
     render: function() {
-      console.log('ChatView: chatting in ' + this.model.get('_id'));
       this.$el.html('');
 
       var $hTag = $('<h3></h3>');
-      $hTag.html("Chatting in " + this.model.get('title'));
+      $hTag.html("Chatting in " + this.room.get('title'));
 
       this.$el.append($hTag);
       this.$el.append(this.$messagesContainer);
       this.$el.append(this.$submitForm);
+    },
+
+    roomsChanged: function() {
+      console.log('ChatView: chatting in ' + this.room.get('_id'));
+      this.messages.setRoomId(this.room.get('_id'));
+      this.render();
     }
 
   })
@@ -176,7 +207,7 @@
     },
 
     changedRooms: function() {
-      this.chatView.model.set({
+      this.chatView.room.set({
         'title': this.activeRoom.get('title'),
         '_id': this.activeRoom.get('_id')
       });
@@ -184,17 +215,17 @@
 
     changeRooms: function(event) {
       if (typeof event === 'string') {
+        // fired manually. event - room id
         var $target = this.$el.find('a[data-id='+ event +']');
       } else {
         var $target = $(event.target);
+        event.preventDefault();
       }
 
       this.$el.find('li.active').removeClass('active');
       $target.parent().addClass('active');
       this.activeRoom = this.rooms.get($target.data('id'));
       this.changedRooms();
-
-      event.preventDefault();
     }
 
   })
