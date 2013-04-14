@@ -17,3 +17,7 @@
   cursor: default;
   overflow: hidden;
 }
+
+#js-chat-container form {
+  margin-left: 0 !important;
+}

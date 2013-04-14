@@ -26,7 +26,33 @@
     comparator: 'title'
   })
 
-  var Rooms = new RoomCollection();
+  var rooms = new RoomCollection();
+
+  var ChatView = Backbone.View.extend({
+
+    room: null,
+
+    events: {
+    },
+
+    initialize: function(options){
+      this.$el = options.$el;
+
+      this.$messagesContainer = $("<textarea class='span8' id='chat' />");
+      this.$submitForm = $("<form class='span8'>"
+        + "<input class='span10 pull-left' />"
+        + "<input type='submit' class='span2 btn btn-primary pull-right' />"
+        + "</form>")
+    },
+
+    render: function() {
+      this.$el.html('');
+
+      this.$el.append(this.$messagesContainer);
+      this.$el.append(this.$submitForm);
+    }
+
+  })
 
   var RoomView = Backbone.View.extend({
 
@@ -50,8 +76,12 @@
     initialize: function(options) {
       _.bindAll(this, 'newRoomClicked', 'inputKeyPress', 'cancelEntering');
 
-      this.el = options.el;
-      this.$el = this.el;
+      this.$el = options.$el;
+      this.$chat = options.$chat;
+
+      this.chatView = new ChatView({
+        $el: this.$chat
+      })
 
       this.$container = $("<ul class='nav nav-pills nav-stacked'></ul>");
       this.$newRoomButton = $("<button class='new-room-button btn pull-right'><i class='icon-plus'></i>New chat room</button>")
@@ -59,11 +89,11 @@
 
       this.addingRoom = false;
 
-      this.listenTo(Rooms, 'add', this.addAll);
-      this.listenTo(Rooms, 'reset', this.addAll);
-      this.listenTo(Rooms, 'all', this.render);
+      this.listenTo(rooms, 'add', this.addAll);
+      this.listenTo(rooms, 'reset', this.addAll);
+      this.listenTo(rooms, 'all', this.render);
 
-      Rooms.fetch();
+      rooms.fetch();
     },
 
     render: function() {
@@ -84,7 +114,7 @@
     addAll: function() {
       console.log('addAll');
       this.$container.html('');
-      Rooms.each(this.addOne, this);
+      rooms.each(this.addOne, this);
     },
 
     newRoomClicked: function() {
@@ -113,7 +143,7 @@
         },
         success: function(model, response, options) {
           if (response._id) {
-            Rooms.add(model);
+            rooms.add(model);
             that.$newRoomButton.show();
             that.$newRoomInput.hide();
           }
@@ -129,7 +159,10 @@
     }
   })
 
-  var RoomsView = new RoomListView({ el: $('.js-rooms-container') });
+  var roomsView = new RoomListView({
+    $el: $('#js-rooms-container'),
+    $chat: $('#js-chat-container')
+  });
 
 })(jQuery, Backbone, _)
 

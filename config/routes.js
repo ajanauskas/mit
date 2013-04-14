@@ -30,4 +30,7 @@ module.exports = function(app, passport, auth){
   app.post('/rooms', auth.requiresLogin, room.index)
   app.post('/rooms.json', auth.requiresLogin, room.index)
 
+  var message = require(controllerPath + 'messages_controller')
+  app.get('/messages.json', auth.requiresLogin, message.index)
+
 }
