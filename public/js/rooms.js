@@ -41,13 +41,12 @@
     socket: null,
 
     initialize: function(roomId) {
-      _.bindAll(this, 'populateFromSocket', 'addFromSocket');
+      _.bindAll(this, 'populateFromSocket', 'addFromSocket', 'push');
+      this.setRoomId(roomId);
 
       this.socket = io.connect('http://localhost:3000/messages');
       this.socket.on('messages', this.populateFromSocket);
       this.socket.on('new message', this.addFromSocket);
-
-      this.setRoomId(roomId);
     },
 
     setRoomId: function(roomId) {
@@ -65,6 +64,13 @@
 
     addFromSocket: function(data) {
       this.add(data);
+    },
+
+    push: function(model) {
+      this.socket.emit('new', {
+        body: model.get('body'),
+        roomId: this.roomId
+      })
     }
 
   })
@@ -75,26 +81,27 @@
     messages: null,
 
     events: {
+      'submit form': 'onFormSubmit'
     },
 
     initialize: function(options){
-      _.bindAll(this, 'roomsChanged');
+      _.bindAll(this, 'roomsChanged', 'onFormSubmit', 'addMessages', 'resetChat');
 
       this.$el = options.$el;
 
       this.$messagesContainer = $("<textarea class='span8' id='chat' />");
-      this.$submitForm = $("<form class='span8'>"
-        + "<input class='span10 pull-left' />"
+      this.$submitForm = $("<form action='post' class='span8'>"
+        + "<input type='text' class='span10 pull-left' />"
         + "<input type='submit' class='span2 btn btn-primary pull-right' />"
         + "</form>");
+      this.$input = this.$submitForm.find('input[type=text]');
 
       this.room = new Room();
       this.messages = new MessageCollection();
 
       this.listenTo(this.room, 'change', this.roomsChanged);
-
-      this.messages.fetch();
-
+      this.listenTo(this.messages, 'add', this.addMessages);
+      this.listenTo(this.messages, 'reset', this.resetChat);
     },
 
     render: function() {
@@ -106,12 +113,40 @@
       this.$el.append($hTag);
       this.$el.append(this.$messagesContainer);
       this.$el.append(this.$submitForm);
+
+      this.messages.fetch();
     },
 
     roomsChanged: function() {
       console.log('ChatView: chatting in ' + this.room.get('_id'));
       this.messages.setRoomId(this.room.get('_id'));
       this.render();
+    },
+
+    onFormSubmit: function(event) {
+      var body = this.$input.val();
+      var message = new Message({
+        body: body
+      })
+
+      this.messages.push(message);
+      this.$input.val('');
+      event.preventDefault();
+    },
+
+    addMessages: function(models, collection, options) {
+      var $messagesContainer = this.$messagesContainer;
+      if (models instanceof Array) {
+        _.each(models, function(model){
+          $messagesContainer.val($messagesContainer.val() + "\n" + model.get('body'));
+        })
+      } else {
+        $messagesContainer.val($messagesContainer.val() + "\n" + models.get('body'));
+      }
+    },
+
+    resetChat: function() {
+       this.$messagesContainer.val('');
     }
 
   })
