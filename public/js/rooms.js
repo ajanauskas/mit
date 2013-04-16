@@ -33,7 +33,31 @@
       _id: null,
       body: "",
       created_at: new Date()
+    },
+
+    initialize: function(options) {
+      if (options.socketData) {
+        var data = options.socketData;
+        this.set({
+          body: data.body,
+          created_at: new Date(Date.parse(data.created_at))
+        })
+      }
     }
+  })
+
+  var MessageView = Backbone.View.extend({
+
+    tagName: "div",
+    className: 'chat-message',
+    template: _.template("<div class='date'>[<%= dateFormat(created_at, 'h:MM:ss TT') %>]</div>"
+                        +"<div class='body'><%= body %></div>"),
+
+    render: function() {
+      this.$el.html(this.template(this.model.toJSON()));
+      return this;
+    }
+
   })
 
   var MessageCollection = Backbone.Collection.extend({
@@ -58,12 +82,18 @@
     },
 
     populateFromSocket: function(data) {
+      var models = [];
+      _.each(data, function(data){
+        var model = new Message({ socketData: data });
+        models.push(model);
+      })
+
       this.reset();
-      this.add(data);
+      this.add(models);
     },
 
     addFromSocket: function(data) {
-      this.add(data);
+      this.add(new Message({ socketData: data }));
     },
 
     push: function(model) {
@@ -85,11 +115,11 @@
     },
 
     initialize: function(options){
-      _.bindAll(this, 'roomsChanged', 'onFormSubmit', 'addMessages', 'resetChat');
+      _.bindAll(this, 'roomsChanged', 'onFormSubmit', 'addMessage', 'resetChat');
 
       this.$el = options.$el;
 
-      this.$messagesContainer = $("<textarea class='span8' id='chat' />");
+      this.$messagesContainer = $("<div class='span8' id='chat'></div>");
       this.$submitForm = $("<form action='post' class='span8'>"
         + "<input type='text' class='span10 pull-left' />"
         + "<input type='submit' class='span2 btn btn-primary pull-right' />"
@@ -100,7 +130,7 @@
       this.messages = new MessageCollection();
 
       this.listenTo(this.room, 'change', this.roomsChanged);
-      this.listenTo(this.messages, 'add', this.addMessages);
+      this.listenTo(this.messages, 'add', this.addMessage);
       this.listenTo(this.messages, 'reset', this.resetChat);
     },
 
@@ -134,19 +164,14 @@
       event.preventDefault();
     },
 
-    addMessages: function(models, collection, options) {
-      var $messagesContainer = this.$messagesContainer;
-      if (models instanceof Array) {
-        _.each(models, function(model){
-          $messagesContainer.val($messagesContainer.val() + "\n" + model.get('body'));
-        })
-      } else {
-        $messagesContainer.val($messagesContainer.val() + "\n" + models.get('body'));
-      }
+    addMessage: function(model) {
+      var messageView = new MessageView({ model: model })
+      this.$messagesContainer.append(messageView.render().$el);
+      this.$messagesContainer.scrollTop(this.$messagesContainer.height());
     },
 
     resetChat: function() {
-       this.$messagesContainer.val('');
+       this.$messagesContainer.html('');
     }
 
   })

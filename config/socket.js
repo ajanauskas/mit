@@ -25,7 +25,8 @@ module.exports = function(io) {
           var message = new Message({
             body: data.body,
             sender: userId,
-            room: roomId
+            room: roomId,
+            created_at: new Date(Date.now())
           })
 
           message.save(function(error) {

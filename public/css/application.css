@@ -16,6 +16,25 @@
   background: white;
   cursor: default;
   overflow: hidden;
+  margin: 0 0 10px 0;
+  border: 1px solid #CCC;
+  border-radius: 5px;
+  padding: 10px;
+  overflow-y: scroll;
+}
+
+.chat-message {
+  clear: both;
+}
+
+.chat-message .date {
+  float: left;
+  font-weight: bold;
+}
+
+.chat-message .body {
+  float: left;
+  margin-left: 5px;
 }
 
 #js-chat-container form {
