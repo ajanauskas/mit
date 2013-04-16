@@ -165,6 +165,7 @@
   var RoomListView = Backbone.View.extend({
 
     activeRoom: null,
+    rooms: null,
 
     events: {
       'click .new-room-button': 'newRoomClicked',
@@ -221,16 +222,26 @@
     },
 
     addAll: function() {
-      console.log('addAll');
       this.$container.html('');
       this.rooms.each(this.addOne, this);
+
+      if (this.rooms.length) {
+        if (this.activeRoom != null) {
+          this.changeRooms(this.activeRoom.get('_id'))
+        } else {
+          this.changeRooms(this.rooms.first().get('_id'))
+        }
+      }
     },
 
     newRoomClicked: function() {
-      this.addingRoom = true;
-
       this.$newRoomButton.hide();
       this.$newRoomInput.show().focus().val(new Room().get('title'));
+    },
+
+    cancelEntering: function(event) {
+      this.$newRoomButton.show();
+      this.$newRoomInput.hide();
     },
 
     inputKeyPress: function(event) {
@@ -252,19 +263,12 @@
         },
         success: function(model, response, options) {
           if (response._id) {
-            this.rooms.add(model);
+            that.rooms.add(model);
             that.$newRoomButton.show();
             that.$newRoomInput.hide();
           }
         }
       })
-    },
-
-    cancelEntering: function(event) {
-      this.addingRoom = false;
-
-      this.$newRoomButton.show();
-      this.$newRoomInput.hide();
     },
 
     changedRooms: function() {
@@ -278,14 +282,15 @@
       if (typeof event === 'string') {
         // fired manually. event - room id
         var $target = this.$el.find('a[data-id='+ event +']');
+        this.activeRoom = this.rooms.get(event);
       } else {
         var $target = $(event.target);
+        this.activeRoom = this.rooms.get($target.data('id'));
         event.preventDefault();
       }
 
       this.$el.find('li.active').removeClass('active');
       $target.parent().addClass('active');
-      this.activeRoom = this.rooms.get($target.data('id'));
       this.changedRooms();
     }
 

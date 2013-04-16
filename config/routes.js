@@ -27,8 +27,8 @@ module.exports = function(app, passport, auth){
   var room = require(controllerPath + 'rooms_controller')
   app.get('/rooms', auth.requiresLogin, room.index)
   app.get('/rooms.json', auth.requiresLogin, room.index)
-  app.post('/rooms', auth.requiresLogin, room.index)
-  app.post('/rooms.json', auth.requiresLogin, room.index)
+  app.post('/rooms', auth.requiresLogin, room.create)
+  app.post('/rooms.json', auth.requiresLogin, room.create)
 
   var message = require(controllerPath + 'messages_controller')
   app.get('/messages.json', auth.requiresLogin, message.index)
