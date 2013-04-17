@@ -1,4 +1,13 @@
 (function($, Backbone, _){
+  window.util = {
+    htmlEscape: function(text) {
+       return text.replace(/&/g, '&amp;').
+         replace(/</g, '&lt;').
+         replace(/"/g, '&quot;').
+         replace(/'/g, '&#039;');
+    }
+  }
+
   var Room = Backbone.Model.extend({
     idAttribute: "_id",
     url: '/rooms.json',
@@ -51,7 +60,7 @@
     tagName: "div",
     className: 'chat-message',
     template: _.template("<div class='date'>[<%= dateFormat(created_at, 'h:MM:ss TT') %>]</div>"
-                        +"<div class='body'><%= body %></div>"),
+                        +"<div class='body'><%= util.htmlEscape(body) %></div>"),
 
     render: function() {
       this.$el.html(this.template(this.model.toJSON()));
@@ -167,7 +176,7 @@
     addMessage: function(model) {
       var messageView = new MessageView({ model: model })
       this.$messagesContainer.append(messageView.render().$el);
-      this.$messagesContainer.scrollTop(this.$messagesContainer.height());
+      this.$messagesContainer.scrollTop(this.$messagesContainer[0].scrollHeight);
     },
 
     resetChat: function() {
