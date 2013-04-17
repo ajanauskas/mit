@@ -31,7 +31,7 @@ module.exports = function(io) {
 
           message.save(function(error) {
             if (!error) {
-              socket.emit('new message', {
+              messages.emit('new message', {
                 body: message.body,
                 created_at: message.created_at
               })

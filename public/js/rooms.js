@@ -68,7 +68,7 @@
       _.bindAll(this, 'populateFromSocket', 'addFromSocket', 'push');
       this.setRoomId(roomId);
 
-      this.socket = io.connect('http://localhost:3000/messages');
+      this.socket = io.connect('/messages');
       this.socket.on('messages', this.populateFromSocket);
       this.socket.on('new message', this.addFromSocket);
     },
