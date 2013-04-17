@@ -1,13 +1,4 @@
 (function($, Backbone, _){
-  window.util = {
-    htmlEscape: function(text) {
-       return text.replace(/&/g, '&amp;').
-         replace(/</g, '&lt;').
-         replace(/"/g, '&quot;').
-         replace(/'/g, '&#039;');
-    }
-  }
-
   var Room = Backbone.Model.extend({
     idAttribute: "_id",
     url: '/rooms.json',
