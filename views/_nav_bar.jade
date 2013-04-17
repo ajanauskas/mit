@@ -30,4 +30,4 @@
       else
         .pull-right
           form(action='/users/logout', method='post')
-            input.btn.btn-primary(type='submit', value='Logout')
+            input.btn.btn-primary(type='submit', value="Logout #{user.login}")
