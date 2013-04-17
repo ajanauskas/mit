@@ -10,7 +10,7 @@ module.exports = function(app, passport, auth){
   var user = require(controllerPath + 'users_controller')
   app.get('/users/index', user.index)
   app.get('/users/new', user.new)
-  app.post('/users/create', user.create)
+  app.post('/users', user.create)
   // login
   app.post(
     '/users/login',
