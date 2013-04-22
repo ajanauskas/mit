@@ -1,14 +1,16 @@
 var fs = require('fs')
-var config = JSON.parse(fs.readFileSync('./config/config.json'))
+    , configJSON = JSON.parse(fs.readFileSync('./config/config.json'))
+    , env = process.env.NODE_ENV || 'development'
+    , config = configJSON[env] || {}
 
 var express = require('express')
-    , Resource = require('express-resource')
     , app = express()
     , port = config.port || '3000'
     , host = config.host || '0.0.0.0'
     , http = require('http')
     , server = http.createServer(app)
     , io = require('socket.io').listen(server)
+    , socketController = require('./config/socket')
     , passport = require('passport')
     , LocalStrategy = require('passport-local').Strategy
     , passportIo = require('passport.socketio')
@@ -17,18 +19,14 @@ var express = require('express')
     , middlewares = require('./config/middleware/application')
     , auth = require('./config/middleware/authorization')
 
+
+// setup passport - user authentication
 passport.serializeUser(auth.userSerialization)
 passport.deserializeUser(auth.userDeserialization)
 passport.use(new LocalStrategy(auth.localStrategy))
 
-// global locals
-app.use(function(request, response, next){
-  response.locals.io = io
-  next()
-})
+app.set('env', env)
 
-app.set('env', process.env.NODE_ENV || 'development')
-app.use(express.logger('dev'))
 app.configure(function(){
   app.use(express.static(__dirname + '/public'))
 
@@ -79,9 +77,10 @@ app.configure('development', function(){
 console.log("Listening " + host + " on port " + port)
 
 server.listen(port, host)
+// socket.io must be defined after server.listen
+socketController(io)
 
-require('./config/socket')(io)
-
+// Helpers for express to use. Useful when rendering views
 app.locals(require('./helpers/application'))
 app.locals._ = require('underscore')
 
