@@ -2,7 +2,8 @@
  *  Generic require login routing middleware
  */
 
-var User = require('../../models/user')
+var mongoose = require('mongoose')
+    , User = mongoose.model('user')
     , ObjectId = require('mongoose').Types.ObjectId
     , crypto = require('crypto')
 

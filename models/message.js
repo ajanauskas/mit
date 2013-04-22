@@ -1,4 +1,4 @@
-var mongoose = require(__dirname + '/../config/mongo')
+var mongoose = require('mongoose')
 
 var MessageSchema = mongoose.Schema({
   body: { type: String, required: true },
@@ -8,5 +8,3 @@ var MessageSchema = mongoose.Schema({
 })
 
 var Message = mongoose.model('message', MessageSchema)
-
-module.exports = Message

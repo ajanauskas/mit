@@ -1,4 +1,5 @@
-var Message = require(__dirname + '/../models/message')
+var mongoose = require('mongoose')
+    , Message = mongoose.model('message')
     , _ = require('underscore')
     , ObjectId = require('mongoose').Types.ObjectId
 

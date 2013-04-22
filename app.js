@@ -10,22 +10,36 @@ var express = require('express')
     , http = require('http')
     , server = http.createServer(app)
     , io = require('socket.io').listen(server)
-    , socketController = require('./config/socket')
-    , passport = require('passport')
-    , LocalStrategy = require('passport-local').Strategy
-    , passportIo = require('passport.socketio')
     , MongoStore = require('connect-mongo')(express)
     , flash = require('connect-flash')
-    , middlewares = require('./config/middleware/application')
-    , auth = require('./config/middleware/authorization')
+    , mongoose = require(__dirname + '/config/mongo')
 
+app.set('env', env)
+
+// bootstrap models so we dont need to require them every time in every controller
+// and also automatically register all models to mongo
+var models_path = __dirname + '/models'
+    , defined_models = [
+      'user.js',
+      'room.js',
+      'message.js'
+    ]
+
+for (var i = 0; i < defined_models.length; i++) {
+  require(models_path + '/' + defined_models[i])
+}
 
 // setup passport - user authentication
+var passport = require('passport')
+    , LocalStrategy = require('passport-local').Strategy
+    , passportIo = require('passport.socketio')
+    , auth = require('./config/middleware/authorization')
+
 passport.serializeUser(auth.userSerialization)
 passport.deserializeUser(auth.userDeserialization)
 passport.use(new LocalStrategy(auth.localStrategy))
 
-app.set('env', env)
+var middlewares = require('./config/middleware/application')
 
 app.configure(function(){
   app.use(express.static(__dirname + '/public'))
@@ -78,6 +92,7 @@ console.log("Listening " + host + " on port " + port)
 
 server.listen(port, host)
 // socket.io must be defined after server.listen
+var socketController = require('./config/socket')
 socketController(io)
 
 // Helpers for express to use. Useful when rendering views

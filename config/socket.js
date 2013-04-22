@@ -1,6 +1,7 @@
-var _ = require('underscore')
-    , Message = require('./../models/message')
-    , ObjectId = require('mongoose').Types.ObjectId
+var mongoose = require('mongoose')
+    , _ = require('underscore')
+    , Message = mongoose.model('message')
+    , ObjectId = mongoose.Types.ObjectId
 
 module.exports = function(io) {
 

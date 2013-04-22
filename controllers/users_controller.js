@@ -1,4 +1,5 @@
-var User = require(__dirname + '/../models/user')
+var mongoose = require('mongoose')
+    , User = mongoose.model('user')
     ,  _ = require('underscore')
 
 function digestPassword(password){

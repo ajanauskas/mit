@@ -1,5 +1,5 @@
-var mongoose = require(__dirname + '/../config/mongo'),
-    validations = require('./validations')
+var mongoose = require('mongoose')
+    , validations = require('./validations')
 
 var RoomSchema = mongoose.Schema({
   title: { type: String, unique: true, required: true},
@@ -10,4 +10,3 @@ var Room = mongoose.model('room', RoomSchema)
 
 validations.validateNotEmpty(RoomSchema, 'title')
 
-module.exports = Room

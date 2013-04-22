@@ -1,4 +1,5 @@
-var Room = require(__dirname + '/../models/room')
+var mongoose = require('mongoose')
+    , Room = mongoose.model('room')
     , _ = require('underscore')
 
 module.exports.index = function(request, response) {
