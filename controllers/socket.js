@@ -53,7 +53,7 @@ module.exports = function(io) {
         .on('new room', function(data) {
           rooms.emit('new room');
         })
-        .on('destroy room', function(data) {
+        .on('destroyed room', function(data) {
           rooms.emit('destroyed room');
         })
 

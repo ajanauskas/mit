@@ -1,7 +1,7 @@
 (function($, Backbone, _, rooms){
   var Room = Backbone.Model.extend({
     idAttribute: "_id",
-    url: '/rooms.json',
+    urlRoot: '/rooms',
 
     defaults: {
       _id: null,
@@ -9,7 +9,7 @@
     },
 
     initialize: function() {
-      _.bindAll(this, 'validate');
+      _.bindAll(this);
     },
 
     validate: function() {
@@ -188,13 +188,13 @@
     },
 
     initialize: function(options) {
+      _.bindAll(this);
       this.model = options.model;
-      this.godView = options.godView;
       this.roomListView = options.roomListView;
     },
 
     render: function() {
-      if (this.godView) {
+      if (this.roomListView.godView) {
         this.$el.html(this.templateForGod(this.model.toJSON()));
       } else {
         this.$el.html(this.template(this.model.toJSON()));
@@ -203,11 +203,23 @@
     },
 
     changeRooms: function(event) {
+      if ($(event.target).hasClass('icon-remove-sign')) {
+        return
+      }
+
       this.roomListView.changeRooms(this.model.get('_id'));
     },
 
     removeRoom: function(event) {
-      this.model.destroy()
+      event.preventDefault();
+      var that = this;
+
+      this.model.destroy({
+        wait: true,
+        success: function(model, response) {
+          that.remove();
+        }
+      });
     }
 
   })
@@ -234,9 +246,6 @@
       })
 
       this.godView = this.$el.data('god');
-      this.socket = io.connect('/rooms');
-      this.socket.on('new room', this.onRoomsChange);
-      this.socket.on('destroyed room', this.onRoomsChange);
 
       this.$container = $("<ul class='nav nav-pills nav-stacked'></ul>");
       this.$newRoomButton = $("<button class='new-room-button btn pull-right'><i class='icon-plus'></i>New chat room</button>");
@@ -244,7 +253,6 @@
 
       this.listenTo(this.rooms, 'add', this.addAll);
       this.listenTo(this.rooms, 'reset', this.addAll);
-      this.listenTo(this.rooms, 'all', this.render);
 
       if (options.rooms && options.rooms.length > 0) {
         this.rooms.reset(options.rooms);
@@ -254,13 +262,10 @@
 
     },
 
-    onRoomsChange: function() {
-      this.rooms.fetch();
-    },
-
     render: function() {
       this.$el.html('');
 
+      this.$container.html('');
       this.$el.append(this.$container);
       this.$el.append(this.$newRoomButton);
       this.$el.append(this.$newRoomInput);
@@ -269,12 +274,16 @@
     },
 
     addOne: function(room) {
-      var view = new RoomView({ model: room, godView: this.godView, roomListView: this });
-      this.$container.append(view.render().el);
+      var view = new RoomView({
+        model: room,
+        roomListView: this,
+      });
+
+      this.$container.append(view.render().$el);
     },
 
     addAll: function() {
-      this.$container.html('');
+      this.render();
       this.rooms.each(this.addOne, this);
 
       if (this.rooms.length) {
@@ -318,7 +327,6 @@
             that.rooms.add(model);
             that.$newRoomButton.show();
             that.$newRoomInput.hide();
-            that.socket.emit('new room');
           }
         }
       })

@@ -62,3 +62,20 @@ module.exports.create = function(request, response) {
   })
 
 }
+
+module.exports.destroy = function(request, response) {
+
+  if (!request.user.hasRole('god')) {
+    response.send(401, JSON.stringify({ status: 'Authorization not granted' }))
+    return
+  }
+
+  Room.remove({ _id: request.params.id }, function(error) {
+    if (error) {
+      response.send(500, JSON.stringify({ status: 'Something broke' }))
+    } else {
+      response.send(200, JSON.stringify({ status: 'OK' }))
+    }
+  })
+
+}
