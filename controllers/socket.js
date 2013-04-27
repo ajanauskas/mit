@@ -15,9 +15,12 @@ module.exports = function(io) {
           Message
             .find({ "room": new ObjectId(roomId) })
             .select('body created_at sender room')
+            .sort({ created_at: -1 })
+            .limit(50)
             .exec(function(error, messages){
               socket.emit('messages', messages)
             })
+
         })
         .on('new', function(data) {
           var roomId = data.roomId
@@ -39,6 +42,19 @@ module.exports = function(io) {
             }
           })
 
+        })
+
+    })
+
+  var rooms = io
+    .of('/rooms')
+    .on('connection', function(socket) {
+      socket
+        .on('new room', function(data) {
+          rooms.emit('new room');
+        })
+        .on('destroy room', function(data) {
+          rooms.emit('destroyed room');
         })
 
     })

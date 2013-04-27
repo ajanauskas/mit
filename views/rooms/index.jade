@@ -2,12 +2,16 @@ extends ../base_layout
 
 block sidebar
   h4 Chat rooms
-  div#js-rooms-container
+  div#js-rooms-container(data-god="#{user.hasRole('god')}")
 
 block content
   div#js-chat-container
 
 block append scripts
   script(src="/socket.io/socket.io.js")
+  script
+    var rooms = !{JSON.stringify(rooms)};
   script(src='/js/rooms.js')
+
+
 

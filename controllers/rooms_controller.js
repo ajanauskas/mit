@@ -19,10 +19,17 @@ module.exports.index = function(request, response) {
     html: function() {
       // html request
 
-      response.render('rooms/index', {
-        page_title: 'Chat rooms'
-      })
+      Room
+        .find({})
+        .select('title _id')
+        .exec(function(error, rooms){
+          response.render('rooms/index', {
+            page_title: 'Chat rooms',
+            rooms: rooms
+          })
+        })
     }
+
   })
 
 }

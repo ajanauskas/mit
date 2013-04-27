@@ -40,3 +40,7 @@
 #js-chat-container form {
   margin-left: 0 !important;
 }
+
+#js-rooms-container .nav a {
+  height: 16px;
+}

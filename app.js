@@ -71,8 +71,8 @@ app.configure(function(){
   app.use(express.methodOverride())
   app.use(express.bodyParser())
 
-  app.use(passport.initialize());
-  app.use(passport.session());
+  app.use(passport.initialize())
+  app.use(passport.session())
 
   // configure application middlewares before routes
   app.use(middlewares.load_user)
@@ -92,10 +92,9 @@ console.log("Listening " + host + " on port " + port)
 
 server.listen(port, host)
 // socket.io must be defined after server.listen
-var socketController = require('./config/socket')
+var socketController = require('./controllers/socket')
 socketController(io)
 
 // Helpers for express to use. Useful when rendering views
 app.locals(require('./helpers/application'))
 app.locals._ = require('underscore')
-

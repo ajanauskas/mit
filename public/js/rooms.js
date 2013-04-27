@@ -1,4 +1,4 @@
-(function($, Backbone, _){
+(function($, Backbone, _, rooms){
   var Room = Backbone.Model.extend({
     idAttribute: "_id",
     url: '/rooms.json',
@@ -115,7 +115,7 @@
     },
 
     initialize: function(options){
-      _.bindAll(this, 'roomsChanged', 'onFormSubmit', 'addMessage', 'resetChat');
+      _.bindAll(this);
 
       this.$el = options.$el;
 
@@ -179,12 +179,37 @@
   var RoomView = Backbone.View.extend({
 
     tagName: "li",
-    template: _.template("<a href='#' data-id='<%= _id %>'><%= title %></a>"),
+    templateForGod: _.template("<a href='#' data-id='<%= _id %>'><span class='pull-left'><%= title %></span><i class='icon-remove-sign pull-right'></a>"),
+    template: _.template("<a href='#' data-id='<%= _id %>'><span class='pull-left'><%= title %></span></a>"),
+
+    events: {
+      'click': 'changeRooms',
+      'click .icon-remove-sign': 'removeRoom'
+    },
+
+    initialize: function(options) {
+      this.model = options.model;
+      this.godView = options.godView;
+      this.roomListView = options.roomListView;
+    },
 
     render: function() {
-      this.$el.html(this.template(this.model.toJSON()));
+      if (this.godView) {
+        this.$el.html(this.templateForGod(this.model.toJSON()));
+      } else {
+        this.$el.html(this.template(this.model.toJSON()));
+      }
       return this;
+    },
+
+    changeRooms: function(event) {
+      this.roomListView.changeRooms(this.model.get('_id'));
+    },
+
+    removeRoom: function(event) {
+      this.model.destroy()
     }
+
   })
 
   var RoomListView = Backbone.View.extend({
@@ -195,40 +220,42 @@
     events: {
       'click .new-room-button': 'newRoomClicked',
       'keypress .new-room-input': 'inputKeyPress',
-      'focusout .new-room-input': 'cancelEntering',
-      'click .nav a': 'changeRooms'
+      'focusout .new-room-input': 'cancelEntering'
     },
 
     initialize: function(options) {
-      _.bindAll(this, 'newRoomClicked', 'inputKeyPress', 'cancelEntering', 'changedRooms', 'changeRooms');
+      _.bindAll(this);
 
       this.$el = options.$el;
 
+      this.rooms = new RoomCollection();
       this.chatView = new ChatView({
         $el: options.$chat
       })
+
+      this.godView = this.$el.data('god');
+      this.socket = io.connect('/rooms');
+      this.socket.on('new room', this.onRoomsChange);
+      this.socket.on('destroyed room', this.onRoomsChange);
 
       this.$container = $("<ul class='nav nav-pills nav-stacked'></ul>");
       this.$newRoomButton = $("<button class='new-room-button btn pull-right'><i class='icon-plus'></i>New chat room</button>");
       this.$newRoomInput = $("<input type='text' class='new-room-input input-small pull-right' />").hide();
 
-      this.rooms = new RoomCollection();
-
       this.listenTo(this.rooms, 'add', this.addAll);
       this.listenTo(this.rooms, 'reset', this.addAll);
       this.listenTo(this.rooms, 'all', this.render);
 
-      var that = this;
+      if (options.rooms && options.rooms.length > 0) {
+        this.rooms.reset(options.rooms);
+        this.activeRoom = this.rooms.first();
+        this.changeRooms(this.activeRoom.get('_id'));
+      }
 
-      this.rooms.fetch({
-        success: function(collection, response, options) {
-          if (collection.length > 0) {
-            that.activeRoom = collection.first();
-            that.changeRooms(that.activeRoom.get('_id'));
-          }
-        }
-      })
+    },
 
+    onRoomsChange: function() {
+      this.rooms.fetch();
     },
 
     render: function() {
@@ -242,7 +269,7 @@
     },
 
     addOne: function(room) {
-      var view = new RoomView({ model: room });
+      var view = new RoomView({ model: room, godView: this.godView, roomListView: this });
       this.$container.append(view.render().el);
     },
 
@@ -291,6 +318,7 @@
             that.rooms.add(model);
             that.$newRoomButton.show();
             that.$newRoomInput.hide();
+            that.socket.emit('new room');
           }
         }
       })
@@ -303,16 +331,9 @@
       });
     },
 
-    changeRooms: function(event) {
-      if (typeof event === 'string') {
-        // fired manually. event - room id
-        var $target = this.$el.find('a[data-id='+ event +']');
-        this.activeRoom = this.rooms.get(event);
-      } else {
-        var $target = $(event.target);
-        this.activeRoom = this.rooms.get($target.data('id'));
-        event.preventDefault();
-      }
+    changeRooms: function(id) {
+      var $target = this.$el.find('a[data-id='+ id +']');
+      this.activeRoom = this.rooms.get(id);
 
       this.$el.find('li.active').removeClass('active');
       $target.parent().addClass('active');
@@ -323,8 +344,9 @@
 
   var roomsView = new RoomListView({
     $el: $('#js-rooms-container'),
-    $chat: $('#js-chat-container')
+    $chat: $('#js-chat-container'),
+    rooms: rooms
   });
 
-})(jQuery, Backbone, _)
+})(jQuery, Backbone, _, rooms)
 
