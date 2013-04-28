@@ -1,15 +1,24 @@
 (function($, Backbone, _, rooms){
+
+  var roomSocket = io.connect('/rooms'),
+      messageSocket = io.connect('/messages');
+
   var Room = Backbone.Model.extend({
     idAttribute: "_id",
-    urlRoot: '/rooms',
 
     defaults: {
       _id: null,
       title: "New room"
     },
 
-    initialize: function() {
-      _.bindAll(this);
+    initialize: function(options) {
+      if (options && options.socketData) {
+        var data = options.socketData;
+        this.set({
+          _id: data._id,
+          title: data.title
+        })
+      }
     },
 
     validate: function() {
@@ -21,16 +30,35 @@
   })
 
   var RoomCollection = Backbone.Collection.extend({
+
     model: Room,
-    url: '/rooms.json',
-    comparator: 'title'
+    comparator: 'title',
+
+    initialize: function(options) {
+      _.bindAll(this, 'addFromSocket', 'destroyFromSocket');
+
+      roomSocket.on('new room', this.addFromSocket);
+      roomSocket.on('destroyed room', this.destroyFromSocket);
+    },
+
+    addFromSocket: function(data) {
+      var model = new Room({ socketData: data });
+      this.add(model);
+    },
+
+    destroyFromSocket: function(data) {
+      var room = this.where({ _id: data._id });
+
+      if (room) {
+        this.remove(room);
+      }
+    }
+
   })
 
   var Message = Backbone.Model.extend({
-    idAttribute: "_id",
 
     defaults: {
-      _id: null,
       body: "",
       created_at: new Date()
     },
@@ -62,15 +90,13 @@
 
   var MessageCollection = Backbone.Collection.extend({
     model: Message,
-    socket: null,
 
     initialize: function(roomId) {
-      _.bindAll(this, 'populateFromSocket', 'addFromSocket', 'push');
+      _.bindAll(this, 'setRoomId', 'populateFromSocket', 'addFromSocket');
       this.setRoomId(roomId);
 
-      this.socket = io.connect('/messages');
-      this.socket.on('messages', this.populateFromSocket);
-      this.socket.on('new message', this.addFromSocket);
+      messageSocket.on('messages', this.populateFromSocket);
+      messageSocket.on('new message', this.addFromSocket);
     },
 
     setRoomId: function(roomId) {
@@ -78,7 +104,7 @@
     },
 
     fetch: function() {
-      this.socket.emit('all', { roomId: this.roomId });
+      messageSocket.emit('all', { roomId: this.roomId });
     },
 
     populateFromSocket: function(data) {
@@ -97,7 +123,7 @@
     },
 
     push: function(model) {
-      this.socket.emit('new', {
+      messageSocket.emit('new', {
         body: model.get('body'),
         roomId: this.roomId
       })
@@ -211,15 +237,10 @@
     },
 
     removeRoom: function(event) {
-      event.preventDefault();
-      var that = this;
-
-      this.model.destroy({
-        wait: true,
-        success: function(model, response) {
-          that.remove();
-        }
-      });
+      if (confirm('Are you sure?')) {
+        event.preventDefault();
+        roomSocket.emit('destroyed room', { _id: this.model.get('_id') });
+      }
     }
 
   })
@@ -253,6 +274,7 @@
 
       this.listenTo(this.rooms, 'add', this.addAll);
       this.listenTo(this.rooms, 'reset', this.addAll);
+      this.listenTo(this.rooms, 'remove', this.addAll);
 
       if (options.rooms && options.rooms.length > 0) {
         this.rooms.reset(options.rooms);
@@ -297,7 +319,7 @@
 
     newRoomClicked: function() {
       this.$newRoomButton.hide();
-      this.$newRoomInput.show().focus().val(new Room().get('title'));
+      this.$newRoomInput.show().focus().val('New room');
     },
 
     cancelEntering: function(event) {
@@ -312,24 +334,14 @@
       }
 
       var newRoom = new Room();
-      var that = this;
+      newRoom.set('title', this.$newRoomInput.val())
 
-      newRoom.save({
-        title: this.$newRoomInput.val()
-      },
-      {
-        error: function(model, xhr, options) {
-          //TODO: error handling?
-          alert(xhr.responseText);
-        },
-        success: function(model, response, options) {
-          if (response._id) {
-            that.rooms.add(model);
-            that.$newRoomButton.show();
-            that.$newRoomInput.hide();
-          }
-        }
-      })
+      if (!newRoom.isValid()) {
+        alert(newRoom.validationError());
+      } else {
+        roomSocket.emit('new room', newRoom.toJSON());
+        this.cancelEntering();
+      }
     },
 
     changedRooms: function() {

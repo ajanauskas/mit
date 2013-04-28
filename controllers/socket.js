@@ -1,6 +1,7 @@
 var mongoose = require('mongoose')
     , _ = require('underscore')
     , Message = mongoose.model('message')
+    , Room = mongoose.model('room')
     , ObjectId = mongoose.Types.ObjectId
 
 module.exports = function(io) {
@@ -51,10 +52,31 @@ module.exports = function(io) {
     .on('connection', function(socket) {
       socket
         .on('new room', function(data) {
-          rooms.emit('new room');
+
+          var roomBody = {
+            title: data.title
+          }
+
+          var room = new Room(roomBody);
+          room.save(function(error) {
+            if (!error) {
+              rooms.emit('new room', {
+                title: room.title,
+                _id: room._id
+              })
+            }
+          })
+
         })
         .on('destroyed room', function(data) {
-          rooms.emit('destroyed room');
+
+          var id = data._id;
+
+          Room.remove({ _id: id }, function(error) {
+            if (!error) {
+              rooms.emit('destroyed room', { _id: id });
+            }
+          })
         })
 
     })
