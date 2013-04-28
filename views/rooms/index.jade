@@ -1,8 +1,9 @@
 extends ../base_layout
 
 block sidebar
-  h4 Chat rooms
-  div#js-rooms-container(data-delete-rooms="#{user.hasRole('room_deletion')}")
+  aside#sidebar.span2
+    h4 Chat rooms
+    div#js-rooms-container(data-delete-rooms="#{user.hasRole('room_deletion')}")
 
 block content
   div#js-chat-container
