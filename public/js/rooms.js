@@ -60,7 +60,8 @@
 
     defaults: {
       body: "",
-      created_at: new Date()
+      created_at: new Date(),
+      sender: ""
     },
 
     initialize: function(options) {
@@ -68,6 +69,7 @@
         var data = options.socketData;
         this.set({
           body: data.body,
+          sender: data.sender.login,
           created_at: new Date(Date.parse(data.created_at))
         })
       }
@@ -79,7 +81,7 @@
     tagName: "div",
     className: 'chat-message',
     template: _.template("<div class='date'>[<%= dateFormat(created_at, 'h:MM:ss TT') %>]</div>"
-                        +"<div class='body'><%= util.htmlEscape(body) %></div>"),
+                        +"<div class='sender'><%= util.htmlEscape(sender) %>:</div><div class='body'><%= util.htmlEscape(body) %></div>"),
 
     render: function() {
       this.$el.html(this.template(this.model.toJSON()));
@@ -205,8 +207,8 @@
   var RoomView = Backbone.View.extend({
 
     tagName: "li",
-    templateForGod: _.template("<a href='#' data-id='<%= _id %>'><span class='pull-left'><%= title %></span><i class='icon-remove-sign pull-right'></a>"),
-    template: _.template("<a href='#' data-id='<%= _id %>'><span class='pull-left'><%= title %></span></a>"),
+    templateWithDeletion: _.template("<a href='#' data-id='<%= _id %>'><span class='pull-left'><%= util.htmlEscape(title) %></span><i class='icon-remove-sign pull-right'></a>"),
+    template: _.template("<a href='#' data-id='<%= _id %>'><span class='pull-left'><%= util.htmlEscape(title) %></span></a>"),
 
     events: {
       'click': 'changeRooms',
@@ -220,8 +222,8 @@
     },
 
     render: function() {
-      if (this.roomListView.godView) {
-        this.$el.html(this.templateForGod(this.model.toJSON()));
+      if (this.roomListView.roomDeletionView) {
+        this.$el.html(this.templateWithDeletion(this.model.toJSON()));
       } else {
         this.$el.html(this.template(this.model.toJSON()));
       }
@@ -266,7 +268,7 @@
         $el: options.$chat
       })
 
-      this.godView = this.$el.data('god');
+      this.roomDeletionView = this.$el.data('delete-rooms');
 
       this.$container = $("<ul class='nav nav-pills nav-stacked'></ul>");
       this.$newRoomButton = $("<button class='new-room-button btn pull-right'><i class='icon-plus'></i>New chat room</button>");

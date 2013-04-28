@@ -1,4 +1,5 @@
 var mongoose = require('mongoose')
+    , validations = require('./validations')
 
 var MessageSchema = mongoose.Schema({
   body: { type: String, required: true },
@@ -8,3 +9,5 @@ var MessageSchema = mongoose.Schema({
 })
 
 var Message = mongoose.model('message', MessageSchema)
+
+validations.validateNotEmpty(Message.schema, 'body')

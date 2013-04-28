@@ -12,6 +12,10 @@ var UserSchema = mongoose.Schema({
 })
 
 UserSchema.methods.hasRole = function(role) {
+  if (_.contains(this.roles, 'god')) {
+    return true;
+  }
+
   return _.contains(this.roles, role)
 }
 

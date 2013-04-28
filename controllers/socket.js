@@ -16,6 +16,7 @@ module.exports = function(io) {
           Message
             .find({ "room": new ObjectId(roomId) })
             .select('body created_at sender room')
+            .populate('sender', 'login')
             .sort({ created_at: -1 })
             .limit(50)
             .exec(function(error, messages){
@@ -69,6 +70,10 @@ module.exports = function(io) {
 
         })
         .on('destroyed room', function(data) {
+
+          if (!socket.handshake.user.hasRole('room_deletion')) {
+            return;
+          }
 
           var id = data._id;
 
