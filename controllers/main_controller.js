@@ -4,7 +4,8 @@ module.exports.index = function(request, response){
 
   function render() {
     response.render('main/home', {
-      page_title: 'MIT website'
+      page_title: 'MIT website',
+      noSidebar: true
     })
   }
 

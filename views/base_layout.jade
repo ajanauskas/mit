@@ -19,7 +19,10 @@ html(lang="en")
     include _nav_bar
     .container-fluid
       .row-fluid
-        block sidebar
+        -if (typeof noSidebar === 'undefined')
+          aside#sidebar.span2
+            block sidebar
+
         section#content.span10
           block content
 
