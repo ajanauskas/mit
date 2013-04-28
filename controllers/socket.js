@@ -17,8 +17,8 @@ module.exports = function(io) {
             .find({ "room": new ObjectId(roomId) })
             .select('body created_at sender room')
             .populate('sender', 'login')
-            .sort({ created_at: -1 })
-            .limit(50)
+            .sort({ created_at: 1 })
+            .limit(100)
             .exec(function(error, messages){
               socket.emit('messages', messages)
             })
@@ -39,7 +39,10 @@ module.exports = function(io) {
             if (!error) {
               messages.emit('new message', {
                 body: message.body,
-                created_at: message.created_at
+                created_at: message.created_at,
+                sender: {
+                  login: socket.handshake.user.login
+                }
               })
             }
           })
