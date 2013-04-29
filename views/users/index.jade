@@ -1,7 +1,18 @@
 extends ../base_layout
 
 block content
-  .span9
-    if (!_.isEmpty(users))
-      each user in users
-        p #{user.login}
+  h4 Users
+  div#js-user-list
+
+block append templates
+  #search-template
+    input.input-medium.search-query(type="text")
+  #user-table-template
+    table
+      thead
+      tbody
+
+block append scripts
+  script
+    var users = !{JSON.stringify(users)};
+  script(src='/js/users.js')

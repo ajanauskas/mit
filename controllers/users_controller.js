@@ -9,6 +9,11 @@ function digestPassword(password){
 
 module.exports.index = function(request, response) {
 
+  if (!request.user.hasRole('user-management')) {
+    response.send('Authorization error')
+    return
+  }
+
   User.find({}, function(error, users){
     response.render('users/index', {
       page_title: 'Users',

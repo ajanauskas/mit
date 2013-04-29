@@ -8,7 +8,7 @@ module.exports = function(app, passport, auth){
   app.get('/', main.index)
 
   var user = require(controllerPath + 'users_controller')
-  app.get('/users/index', user.index)
+  app.get('/users', auth.requiresLogin, user.index)
   app.get('/users/new', user.new)
   app.post('/users', user.create)
   // login

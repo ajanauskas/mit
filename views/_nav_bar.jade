@@ -20,6 +20,11 @@
               a(href='/rooms')
                 i
                 | Chat rooms
+          if (user && user.hasRole('user-management'))
+            li
+              a(href='/users')
+                i
+                | Users
 
       if (!user)
         .pull-right
