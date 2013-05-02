@@ -1,13 +1,16 @@
-var fs = require('fs')
-var config = JSON.parse(fs.readFileSync('./config/database.json'))
+module.exports = function(config) {
 
-var host = config.host || 'localhost'
-var database = config.database || 'mit'
+  config = config.database || {};
 
-var mongoose = require('mongoose')
-mongoose.connect(host, database)
+  var host = config.host || 'localhost'
+  var database = config.database || 'mit'
 
-mongoose.set('debug', true)
+  var mongoose = require('mongoose')
+  mongoose.connect(host, database)
 
-module.exports = mongoose
+  mongoose.set('debug', true)
+
+  return mongoose;
+
+}
 

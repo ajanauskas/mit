@@ -12,7 +12,7 @@ var express = require('express')
     , io = require('socket.io').listen(server)
     , MongoStore = require('connect-mongo')(express)
     , flash = require('connect-flash')
-    , mongoose = require(__dirname + '/config/mongo')
+    , mongoose = require(__dirname + '/config/mongo')(config)
 
 app.set('env', env)
 
