@@ -9,7 +9,6 @@ var express = require('express')
     , host = config.host || '0.0.0.0'
     , http = require('http')
     , server = http.createServer(app)
-    , io = require('socket.io').listen(server)
     , MongoStore = require('connect-mongo')(express)
     , flash = require('connect-flash')
     , mongoose = require(__dirname + '/config/mongo')(config)
@@ -41,16 +40,16 @@ passport.use(new LocalStrategy(auth.localStrategy))
 
 var middlewares = require('./config/middleware/application')
 
+var sessionStore = new MongoStore({
+  db: 'mit'
+})
+
 app.configure(function(){
   app.use(express.static(__dirname + '/public'))
 
   app.set('views', __dirname + '/views')
   app.set('views')
   app.set('view engine', 'jade')
-
-  var sessionStore = new MongoStore({
-    db: 'mit'
-  })
 
   app.use(express.cookieParser());
   app.use(express.session({
@@ -59,14 +58,6 @@ app.configure(function(){
     cookies: { maxAge: 60000 },
     store: sessionStore
   }))
-
-  // set socket IO authorization
-  // TODO: isolate this code
-  io.set("authorization", passportIo.authorize({
-    key:    'chatifier-session',
-    secret: "y4YMuhZnC9ntW050cjPT",
-    store:   sessionStore
-  }));
 
   app.use(express.methodOverride())
   app.use(express.bodyParser())
@@ -88,12 +79,21 @@ app.configure('development', function(){
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }))
 })
 
-console.log("Listening " + host + " on port " + port)
+server.listen(port, host, function() {
+  console.log("Listening " + host + " on port " + port)
 
-server.listen(port, host)
-// socket.io must be defined after server.listen
-var socketController = require('./controllers/socket')
-socketController(io)
+  var io = require('socket.io').listen(server)
+  var socketController = require('./controllers/socket')
+  // set socket IO authorization
+  // TODO: isolate this code
+  io.set("authorization", passportIo.authorize({
+    key:    'chatifier-session',
+    secret: "y4YMuhZnC9ntW050cjPT",
+    store:   sessionStore
+  }));
+
+
+})
 
 // Helpers for express to use. Useful when rendering views
 app.locals(require('./helpers/application'))
