@@ -80,8 +80,7 @@
 
     tagName: "div",
     className: 'chat-message',
-    template: _.template("<div class='date'>[<%= dateFormat(created_at, 'h:MM:ss TT') %>]</div>"
-                        +"<div class='sender'><%= util.htmlEscape(sender) %>:</div><%= util.htmlEscape(body) %>"),
+    template: _.template($('#message-view-template').html()),
 
     render: function() {
       this.$el.html(this.template(this.model.toJSON()));
@@ -209,8 +208,7 @@
   var RoomView = Backbone.View.extend({
 
     tagName: "li",
-    templateWithDeletion: _.template("<a href='#' data-id='<%= _id %>'><span class='pull-left'><%= util.htmlEscape(title) %></span><i class='icon-remove-sign pull-right'></a>"),
-    template: _.template("<a href='#' data-id='<%= _id %>'><span class='pull-left'><%= util.htmlEscape(title) %></span></a>"),
+    template: _.template($('#room-view-template').html()),
 
     events: {
       'click': 'changeRooms',
@@ -224,11 +222,7 @@
     },
 
     render: function() {
-      if (this.roomListView.roomDeletionView) {
-        this.$el.html(this.templateWithDeletion(this.model.toJSON()));
-      } else {
-        this.$el.html(this.template(this.model.toJSON()));
-      }
+      this.$el.html(this.template(_.extend(this.model.toJSON(), { roomDeletionView: this.roomListView.roomDeletionView })));
       return this;
     },
 

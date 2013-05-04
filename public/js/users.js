@@ -1,9 +1,5 @@
 (function($, Backbone, _, users){
 
-  _.templateSettings = {
-    interpolate : /\{\{(.+?)\}\}/g
-  };
-
   var User = Backbone.Model.extend({
     idAttribute: "_id",
     urlRoot: '/users',

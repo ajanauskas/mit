@@ -7,6 +7,22 @@ block sidebar
 block content
   div#js-chat-container
 
+block append templates
+  #message-view-template
+    .date
+      | [{{ dateFormat(created_at, 'h:MM:ss TT') }}]
+    .sender
+      | {{ util.htmlEscape(sender) }}
+    | {{ util.htmlEscape(body) }}
+
+  #room-view-template
+    a(href='#', data-id='{{ _id }}')
+      span.pull-left
+      | {{ util.htmlEscape(title) }}
+      | {[ if (roomDeletionView) { ]}
+      i.icon-remove-sign.pull-right
+      | {[ } ]}
+
 block append scripts
   script(src="/socket.io/socket.io.js")
   script
