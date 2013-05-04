@@ -272,12 +272,12 @@
 
       this.listenTo(this.rooms, 'add', this.addAll);
       this.listenTo(this.rooms, 'reset', this.addAll);
-      this.listenTo(this.rooms, 'remove', this.addAll);
+      this.listenTo(this.rooms, 'remove', this.onRoomDelete);
 
       if (options.rooms && options.rooms.length > 0) {
         this.rooms.reset(options.rooms);
-        this.activeRoom = this.rooms.first();
-        this.changeRooms(this.activeRoom.get('_id'));
+      } else {
+        this.render();
       }
 
     },
@@ -291,6 +291,13 @@
       this.$el.append(this.$newRoomInput);
 
       this.$el.addClass('clearfix');
+    },
+
+    onRoomDelete: function(data) {
+      if (this.rooms.where({ "_id": data.get('_id')}).length === 0) {
+        this.activeRoom = null;
+      }
+      this.addAll();
     },
 
     addOne: function(room) {
