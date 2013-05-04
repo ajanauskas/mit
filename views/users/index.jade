@@ -7,9 +7,13 @@ block content
 block append templates
   #search-template
     input.input-medium.search-query(type="text")
+
   #user-table-template
-    table
+    table#user-table
       thead
+        tr
+          th
+            | Login
       tbody
 
 block append scripts

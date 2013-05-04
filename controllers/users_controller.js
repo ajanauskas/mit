@@ -14,13 +14,15 @@ module.exports.index = function(request, response) {
     return
   }
 
-  User.find({}, function(error, users){
-    response.render('users/index', {
-      page_title: 'Users',
-      users: users
+  User
+    .find({})
+    .select('login')
+    .exec(function(error, users) {
+      response.render('users/index', {
+        page_title: 'Users',
+        users: users
+      })
     })
-  })
-
 }
 
 module.exports.new = function(request, response){

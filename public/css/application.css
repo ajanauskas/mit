@@ -49,3 +49,7 @@
 #js-rooms-container .nav a {
   height: 16px;
 }
+
+#user-table {
+  margin-top: 10px;
+}
