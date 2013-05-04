@@ -121,7 +121,9 @@
     },
 
     addFromSocket: function(data) {
-      this.add(new Message({ socketData: data }));
+      if (this.roomId === data.roomId) {
+        this.add(new Message({ socketData: data }));
+      }
     },
 
     push: function(model) {

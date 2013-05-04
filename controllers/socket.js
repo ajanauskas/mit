@@ -40,6 +40,7 @@ module.exports = function(io) {
               messages.emit('new message', {
                 body: message.body,
                 created_at: message.created_at,
+                roomId: roomId,
                 sender: {
                   login: socket.handshake.user.login
                 }
