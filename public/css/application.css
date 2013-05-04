@@ -36,15 +36,10 @@
   font-weight: bold;
 }
 
-.chat-message .body {
-  float: left;
-  margin-left: 5px;
-}
-
 .chat-message .sender {
   color: #680;
   float: left;
-  margin-left: 5px;
+  margin: 0 5px 0 5px;
 }
 
 #js-chat-container form {

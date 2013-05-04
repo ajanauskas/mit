@@ -81,7 +81,7 @@
     tagName: "div",
     className: 'chat-message',
     template: _.template("<div class='date'>[<%= dateFormat(created_at, 'h:MM:ss TT') %>]</div>"
-                        +"<div class='sender'><%= util.htmlEscape(sender) %>:</div><div class='body'><%= util.htmlEscape(body) %></div>"),
+                        +"<div class='sender'><%= util.htmlEscape(sender) %>:</div><%= util.htmlEscape(body) %>"),
 
     render: function() {
       this.$el.html(this.template(this.model.toJSON()));
