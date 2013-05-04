@@ -83,15 +83,13 @@ server.listen(port, host, function() {
   console.log("Listening " + host + " on port " + port)
 
   var io = require('socket.io').listen(server)
-  var socketController = require('./controllers/socket')
-  // set socket IO authorization
-  // TODO: isolate this code
+      , socketController = require('./controllers/socket')(io)
+
   io.set("authorization", passportIo.authorize({
     key:    'chatifier-session',
     secret: "y4YMuhZnC9ntW050cjPT",
     store:   sessionStore
   }));
-
 
 })
 
