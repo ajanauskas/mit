@@ -1,19 +1,22 @@
 extends ../base_layout
 
 block content
-  h4 Users
-  div#js-user-list
+  .span6
+    h1 Chatifier users
+    div#js-user-list
 
 block append templates
   #search-template
     input.input-medium.search-query(type="text")
 
   #user-table-template
-    table#user-table
+    table#user-table.table
       thead
         tr
           th
             | Login
+          th
+            | Actions
       tbody
 
 block append scripts

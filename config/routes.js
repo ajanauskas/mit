@@ -3,7 +3,6 @@ var _ = require('underscore')
 
 module.exports = function(app, passport, auth){
 
-  // routes
   var main = require(controllerPath + 'main_controller')
   app.get('/', main.index)
 
@@ -11,7 +10,9 @@ module.exports = function(app, passport, auth){
   app.get('/users', auth.requiresLogin, user.index)
   app.get('/users/new', user.new)
   app.post('/users', user.create)
-  // login
+  app.delete('/users/:id', user.destroy)
+  app.get('/users/search', user.search)
+  app.get('/users/search/:search', user.search)
   app.post(
     '/users/login',
     passport.authenticate('local',
