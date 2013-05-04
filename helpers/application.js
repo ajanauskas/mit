@@ -3,7 +3,7 @@ var _ = require('underscore'),
 
 module.exports = {
 
-  error_helper:
+  errorHelper:
     function(errors) {
       if (_.isEmpty(errors))
         return ""
