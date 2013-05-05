@@ -8,7 +8,8 @@
 
     defaults: {
       _id: null,
-      title: "New room"
+      title: "New room",
+      active: false
     },
 
     initialize: function(options) {
@@ -47,9 +48,10 @@
     },
 
     destroyFromSocket: function(data) {
-      var room = this.where({ _id: data._id });
+      var room = this.where({ _id: data._id })[0];
 
       if (room) {
+        room.trigger('remove');
         this.remove(room);
       }
     }
@@ -115,8 +117,7 @@
         models.push(model);
       })
 
-      this.reset();
-      this.add(models);
+      this.reset(models);
     },
 
     addFromSocket: function(data) {
@@ -136,7 +137,6 @@
 
   var ChatView = Backbone.View.extend({
 
-    room: null,
     messages: null,
 
     events: {
@@ -146,6 +146,7 @@
     initialize: function(options){
       _.bindAll(this);
 
+      this.app = options.app;
       this.$el = options.$el;
 
       this.$messagesContainer = $("<div class='span8' id='chat'></div>");
@@ -155,30 +156,28 @@
         + "</form>");
       this.$input = this.$submitForm.find('input[type=text]');
 
-      this.room = new Room();
       this.messages = new MessageCollection();
 
-      this.listenTo(this.room, 'change', this.roomsChanged);
+      this.on('changeRoom', this.changeRoom);
+      this.listenTo(this.messages, 'reset', this.addMessages);
       this.listenTo(this.messages, 'add', this.addMessage);
-      this.listenTo(this.messages, 'reset', this.resetChat);
     },
 
     render: function() {
-      this.$el.html('');
-
+      this.clear();
       var $hTag = $('<h3></h3>');
       $hTag.html("Chatting in " + this.room.get('title'));
 
       this.$el.append($hTag);
       this.$el.append(this.$messagesContainer);
       this.$el.append(this.$submitForm);
-
-      this.messages.fetch();
     },
 
-    roomsChanged: function() {
-      console.log('ChatView: chatting in ' + this.room.get('_id'));
-      this.messages.setRoomId(this.room.get('_id'));
+    changeRoom: function(room) {
+      this.room = room;
+      this.$messagesContainer.html('')
+      this.messages.setRoomId(room.get('_id'));
+      this.messages.fetch(room.get('_id'))
       this.render();
     },
 
@@ -199,14 +198,21 @@
       this.$messagesContainer.scrollTop(this.$messagesContainer[0].scrollHeight);
     },
 
-    resetChat: function() {
-       this.$messagesContainer.html('');
+    addMessages: function() {
+      this.messages.forEach(function(model) {
+        this.addMessage(model);
+      }, this)
+    },
+
+    clear: function() {
+      this.$el.html('');
     }
 
   })
 
   var RoomView = Backbone.View.extend({
 
+    model: null,
     tagName: "li",
     template: _.template($('#room-view-template').html()),
 
@@ -216,13 +222,18 @@
     },
 
     initialize: function(options) {
-      _.bindAll(this);
+      _.bindAll(this, 'changeRooms', 'removeRoom', 'toggleActive', 'triggerRemove');
       this.model = options.model;
-      this.roomListView = options.roomListView;
+      this.app = options.app;
+      this.roomDeletionView = options.roomDeletionView;
+
+      this.listenTo(this.model, 'remove', this.triggerRemove);
+      this.listenTo(this.model, 'change:active', this.toggleActive);
     },
 
     render: function() {
-      this.$el.html(this.template(_.extend(this.model.toJSON(), { roomDeletionView: this.roomListView.roomDeletionView })));
+      this.$el.html(this.template(_.extend(this.model.toJSON(), { roomDeletionView: this.roomDeletionView })));
+      this.toggleActive();
       return this;
     },
 
@@ -231,7 +242,11 @@
         return
       }
 
-      this.roomListView.changeRooms(this.model.get('_id'));
+      this.app.trigger('roomChanged', this.model.get('_id'));
+    },
+
+    triggerRemove: function() {
+      this.remove();
     },
 
     removeRoom: function(event) {
@@ -239,13 +254,20 @@
         event.preventDefault();
         roomSocket.emit('destroyed room', { _id: this.model.get('_id') });
       }
+    },
+
+    toggleActive: function() {
+      if (this.model.get('active')) {
+        this.$el.addClass('active');
+      } else {
+        this.$el.removeClass('active');
+      }
     }
 
   })
 
   var RoomListView = Backbone.View.extend({
 
-    activeRoom: null,
     rooms: null,
 
     events: {
@@ -257,12 +279,9 @@
     initialize: function(options) {
       _.bindAll(this);
 
+      this.app = options.app;
       this.$el = options.$el;
-
-      this.rooms = new RoomCollection();
-      this.chatView = new ChatView({
-        $el: options.$chat
-      })
+      this.rooms = options.rooms;
 
       this.roomDeletionView = this.$el.data('delete-rooms');
 
@@ -270,16 +289,9 @@
       this.$newRoomButton = $("<button class='new-room-button btn pull-right'><i class='icon-plus'></i>New chat room</button>");
       this.$newRoomInput = $("<input type='text' class='new-room-input input-small pull-right' />").hide();
 
-      this.listenTo(this.rooms, 'add', this.addAll);
+      this.listenTo(this.rooms, 'add', this.addOne);
       this.listenTo(this.rooms, 'reset', this.addAll);
-      this.listenTo(this.rooms, 'remove', this.onRoomDelete);
-
-      if (options.rooms && options.rooms.length > 0) {
-        this.rooms.reset(options.rooms);
-      } else {
-        this.render();
-      }
-
+      this.listenTo(this.rooms, 'remove', this.removeRoom);
     },
 
     render: function() {
@@ -291,35 +303,22 @@
       this.$el.append(this.$newRoomInput);
 
       this.$el.addClass('clearfix');
-    },
 
-    onRoomDelete: function(data) {
-      if (this.rooms.where({ "_id": data.get('_id')}).length === 0) {
-        this.activeRoom = null;
-      }
       this.addAll();
     },
 
     addOne: function(room) {
       var view = new RoomView({
         model: room,
-        roomListView: this,
+        roomDeletionView: this.roomDeletionView,
+        app: this.app
       });
 
       this.$container.append(view.render().$el);
     },
 
     addAll: function() {
-      this.render();
       this.rooms.each(this.addOne, this);
-
-      if (this.rooms.length) {
-        if (this.activeRoom != null) {
-          this.changeRooms(this.activeRoom.get('_id'))
-        } else {
-          this.changeRooms(this.rooms.first().get('_id'))
-        }
-      }
     },
 
     newRoomClicked: function() {
@@ -347,31 +346,90 @@
         roomSocket.emit('new room', newRoom.toJSON());
         this.cancelEntering();
       }
-    },
+    }
 
-    changedRooms: function() {
-      this.chatView.room.set({
-        'title': this.activeRoom.get('title'),
-        '_id': this.activeRoom.get('_id')
+   })
+
+  var ChatApp = Backbone.View.extend({
+
+    activeRoom: null,
+
+    initialize: function(options) {
+      _.bindAll(this, 'switchToFirstRoom', 'changeRoom', 'onRoomsReset');
+      this.rooms = new RoomCollection();
+
+      this.listenTo(this.rooms, 'add', this.onNewRoom);
+      this.listenTo(this.rooms, 'remove', this.onRoomDeletion);
+      this.listenTo(this.rooms, 'reset', this.onRoomsReset);
+      this.on('roomChanged', this.changeRoom);
+
+      this.roomList = new RoomListView({
+        app: this,
+        $el: options.$rooms,
+        rooms: this.rooms
       });
+
+      this.chatView = new ChatView({
+        app: this,
+        $el: options.$chat
+      })
+
+      this.rooms.reset(options.rooms);
     },
 
-    changeRooms: function(id) {
-      var $target = this.$el.find('a[data-id='+ id +']');
-      this.activeRoom = this.rooms.get(id);
+    render: function() {
+      this.roomList.render();
+    },
 
-      this.$el.find('li.active').removeClass('active');
-      $target.parent().addClass('active');
-      this.changedRooms();
+    changeRoom: function(id) {
+      var room = this.rooms.where({ _id: id })[0],
+          previousActive = this.rooms.where({ active: true})[0];
+
+      if (previousActive) {
+        previousActive.set('active', false);
+      }
+
+      room.set('active', true);
+      this.chatView.trigger('changeRoom', room);
+    },
+
+    onRoomsReset: function() {
+      if (this.activeRoom ===  null || _.isEmpty(this.rooms.where({ _id: this.activeRoom}))) {
+        this.switchToFirstRoom();
+      }
+    },
+
+    onRoomDeletion: function(room) {
+      if (this.activeRoom === room.get('_id')) {
+        this.switchToFirstRoom();
+      }
+    },
+
+    onNewRoom: function(room) {
+      if (this.activeRoom === null) {
+        this.switchToFirstRoom();
+      }
+    },
+
+    switchToFirstRoom: function() {
+      var firstRoom = this.rooms.first();
+      if (firstRoom) {
+        this.activeRoom = firstRoom.get('_id');
+        this.changeRoom(this.activeRoom);
+      } else {
+        this.activeRoom = null;
+        this.chatView.clear();
+      }
     }
 
   })
 
-  var roomsView = new RoomListView({
-    $el: $('#js-rooms-container'),
-    $chat: $('#js-chat-container'),
-    rooms: rooms
-  });
+  new ChatApp({
+    rooms: rooms,
+    $rooms: $('#js-rooms-container'),
+    $chat: $('#js-chat-container')
+  }).render()
+
 
 })(jQuery, Backbone, _, rooms)
 
