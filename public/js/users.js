@@ -6,27 +6,29 @@
 
     defaults: {
       _id: null,
-      login: null
+      login: null,
+      roles: []
     }
   })
 
   var UserCollection = Backbone.Collection.extend({
     model: User
-
   })
 
   var UserView = Backbone.View.extend({
 
     tagName: 'tr',
-    template: _.template("<td>{{ login }}</td><td><a href='#' class='remove btn btn-danger'>Remove User</a></td>"),
+    template: _.template("<td>{{ login }}</td><td><a href='#' class='manage btn'>Manage User</a><a href='#' class='remove btn btn-danger'>Remove User</a></td>"),
 
     events: {
-      'click .remove': 'removeUser'
+      'click .remove': 'removeUser',
+      "click .manage": "fireManagementEvent"
     },
 
     initialize: function(options) {
-      _.bindAll(this, 'removeUser');
+      _.bindAll(this, 'removeUser', 'fireManagementEvent');
 
+      this.app = options.app;
       this.model = options.model;
       this.listenTo(this.model, 'destroy', this.remove);
     },
@@ -42,6 +44,64 @@
       if (confirm("Are you sure you want to delete user?")) {
         this.model.destroy();
       }
+    },
+
+    fireManagementEvent: function(event) {
+      event.preventDefault();
+
+      this.app.trigger('openManagement', this.model);
+    }
+
+  })
+
+  var UserManagementView = Backbone.View.extend({
+
+    template: _.template($('#user-management-template').html()),
+
+    events: {
+      'submit form': 'submitForm'
+    },
+
+    user: null,
+
+    initialize: function(options) {
+      _.bindAll(this, 'clearView', 'submitForm');
+      this.app = options.app;
+      this.$el = options.$el;
+    },
+
+    render: function(user) {
+      this.user = user;
+      this.$el.html(this.template(user.toJSON()));
+      this.$el.find('input[type=checkbox]').each(function(i, el) {
+        $(el).prop('checked', _.contains(user.toJSON().roles, $(el).data('role')));
+      });
+      return this;
+    },
+
+    clearView: function() {
+      this.$el.html('');
+    },
+
+    submitForm: function(event) {
+      event.preventDefault();
+      var $form = this.$el.find('form');
+
+      $.ajax({
+        context: this,
+        url: $form.attr('action'),
+        type: 'POST',
+        data: $form.serialize(),
+        success: function(data) {
+          data = JSON.parse(data);
+          if (data.status === 'OK') {
+            this.user.set(data.user);
+            alert('User saved');
+          } else {
+            alert('Internal error');
+          }
+        }
+      })
     }
 
   })
@@ -60,6 +120,7 @@
     initialize: function(options) {
       _.bindAll(this, 'filterUsers', 'onSearchFieldType');
 
+      this.app = options.app;
       this.$el = options.$el;
       this.$search = $(this.searchTemplate({ submit: 'Submit' }));
       this.$table = $(this.tableTemplate({ users: [] }));
@@ -77,7 +138,7 @@
       this.$el.append(this.$table);
 
       this.users.each(function(user){
-        var userView = new UserView({ model: user });
+        var userView = new UserView({ model: user, app: this.app });
         this.$tbody.append(userView.render().$el);
       }, this)
     },
@@ -107,10 +168,32 @@
 
   })
 
-  new UserListView({
-    users: users,
-    $el: $('#js-user-list')
+  var UserAppView = Backbone.View.extend({
+
+    initialize: function(options) {
+      _.bindAll(this, 'openManagement');
+
+      this.userList = new UserListView({
+        app: this,
+        users: users,
+        $el: $('#js-user-list')
+      });
+
+      this.management = new UserManagementView({
+        app: this,
+        $el: $('#js-user-management')
+      });
+
+      this.on('openManagement', this.openManagement);
+    },
+
+    openManagement: function(user) {
+      this.management.render(user);
+    }
+
   })
+
+  var userAppView = new UserAppView();
 
 })($, Backbone, _, users)
 

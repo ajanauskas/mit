@@ -4,6 +4,8 @@ block content
   .span6
     h1 Chatifier users
     div#js-user-list
+  .span6
+    div#js-user-management
 
 block append templates
   #search-template
@@ -18,6 +20,19 @@ block append templates
           th
             | Actions
       tbody
+
+  #user-management-template
+    h2 User {{ login }}
+    form(action='/users/{{ _id }}', method='post')
+      roles = ['user-management', 'room-deletion']
+      h3 User roles
+      each role in roles
+        label.checkbox(for='user_role_#{role}')
+          input(id='user_role_#{role}', name='user[roles][#{role}]', type='checkbox', data-role='#{role}')
+          | #{role}
+
+      input(type='submit', class='btn btn-primary')
+
 
 block append scripts
   script

@@ -11,18 +11,21 @@ module.exports.index = function(request, response) {
 
   if (!request.user.hasRole('user-management')) {
     response.send('Authorization error')
-    return
   }
 
   User
     .find({})
-    .select('login')
+    .select('login roles')
+    .sort({ login: 1 })
+    .limit(20)
     .exec(function(error, users) {
       response.render('users/index', {
         page_title: 'Users',
-        users: users
+        users: users,
+        noSidebar: true
       })
     })
+
 }
 
 module.exports.new = function(request, response){
@@ -78,6 +81,47 @@ module.exports.create = function(request, response){
 
 }
 
+module.exports.update = function(request, response) {
+
+  if (request.user.hasRole('user-management')) {
+
+    var roles = []
+        , submitedRoles = request.body.user.roles;
+
+    _.each(submitedRoles, function(checked, role) {
+      if (checked === 'on' && role !== 'god') {
+        roles.push(role)
+      }
+    })
+
+    User.findOne({ "_id": request.params.id }, function(error, user) {
+      if (error) {
+        response.send(JSON.stringify({ status: 'FAIL' }))
+      } else {
+        user.roles = roles;
+        user.save(function(error) {
+          if (error) {
+            response.send(JSON.stringify({ status: 'FAIL' }))
+          } else {
+            var userForm = {
+              _id: user._id,
+              login: user.login,
+              roles: user.roles
+            }
+
+            response.send(JSON.stringify({ status: 'OK', user: userForm }))
+          }
+        })
+      }
+    })
+
+  } else {
+    response.send(JSON.stringify({ status: 'Authorization error'}));
+  }
+
+}
+
+
 module.exports.destroy = function(request, response) {
 
   if (request.user.hasRole('user-management')) {
@@ -108,7 +152,9 @@ module.exports.search = function(request, response) {
 
     User
       .find(searchQuery)
-      .select('login')
+      .select('login roles')
+      .sort({ login: 1 })
+      .limit(20)
       .exec(function(error, users) {
         if (error) {
           response.send(JSON.stringify({ status: 'FAIL' }))

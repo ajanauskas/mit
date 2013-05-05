@@ -53,3 +53,7 @@
 #user-table {
   margin-top: 10px;
 }
+
+#user-table .manage {
+  margin-right: 5px;
+}

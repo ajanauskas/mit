@@ -10,6 +10,7 @@ module.exports = function(app, passport, auth){
   app.get('/users', auth.requiresLogin, user.index)
   app.get('/users/new', user.new)
   app.post('/users', user.create)
+  app.post('/users/:id', user.update)
   app.delete('/users/:id', user.destroy)
   app.get('/users/search', user.search)
   app.get('/users/search/:search', user.search)
