@@ -1,6 +1,7 @@
 var mongoose = require('mongoose')
     , Room = mongoose.model('room')
     , _ = require('underscore')
+    , helpers = require('./../helpers/application')
 
 module.exports.index = function(request, response) {
 
@@ -23,6 +24,10 @@ module.exports.index = function(request, response) {
         .find({})
         .select('title _id')
         .exec(function(error, rooms){
+          _.each(rooms, function(room) {
+            room.title = helpers.htmlEscape(room.title);
+          })
+
           response.render('rooms/index', {
             page_title: 'Chat rooms',
             rooms: rooms

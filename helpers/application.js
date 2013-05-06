@@ -1,24 +1,29 @@
-var _ = require('underscore'),
-    current_user = require('../config/middleware/application').current_user
+var _ = require('underscore')
 
 module.exports = {
 
-  errorHelper:
-    function(errors) {
-      if (_.isEmpty(errors))
-        return ""
+  errorHelper: function(errors) {
+    if (_.isEmpty(errors))
+      return ""
 
-      var output = ""
+    var output = ""
 
-      _.map(errors, function(error) {
-        output += "<div>" + error + "</div>"
-      })
+    _.map(errors, function(error) {
+      output += "<div>" + error + "</div>"
+    })
 
-      output = "<div class='alert alert-error'>"
-               + "<button type='button' class='close' data-dismiss='error'>&times;</button>"
-               + output
-               + "</div>"
+    output = "<div class='alert alert-error'>"
+             + "<button type='button' class='close' data-dismiss='error'>&times;</button>"
+             + output
+             + "</div>"
 
-      return output
-    }
+    return output
+  },
+
+  htmlEscape: function(text) {
+     return text.replace(/&/g, '&amp;').
+       replace(/</g, '&lt;').
+       replace(/"/g, '&quot;').
+       replace(/'/g, '&#039;');
+  }
 }
