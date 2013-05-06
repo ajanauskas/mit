@@ -23,7 +23,7 @@ block append templates
 
   #user-management-template
     h2 User {{ login }}
-    form(action='/users/{{ _id }}', method='post')
+    form(action='/users/{{ _id }}/edit', method='post')
       roles = ['user-management', 'room-deletion']
       h3 User roles
       each role in roles

@@ -12,7 +12,7 @@ module.exports = function(app, passport, auth){
   app.post('/users', user.create)
   app.post('/users/logout', user.logout)
   app.get('/users/login', user.login)
-  app.post('/users/:id', user.update)
+  app.post('/users/:id/edit', user.update)
   app.delete('/users/:id', user.destroy)
   app.get('/users/search', user.search)
   app.get('/users/search/:search', user.search)
