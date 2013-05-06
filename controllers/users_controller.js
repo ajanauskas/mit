@@ -46,7 +46,7 @@ module.exports.create = function(request, response){
 
   var userForm = {
     login: userBody.login,
-    password: digestPassword(user_body.password)
+    password: digestPassword(userBody.password)
   }
 
   if (_.isEmpty(userBody.password)) {

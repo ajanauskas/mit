@@ -10,6 +10,8 @@ module.exports = function(app, passport, auth){
   app.get('/users', auth.requiresLogin, user.index)
   app.get('/users/new', user.new)
   app.post('/users', user.create)
+  app.post('/users/logout', user.logout)
+  app.get('/users/login', user.login)
   app.post('/users/:id', user.update)
   app.delete('/users/:id', user.destroy)
   app.get('/users/search', user.search)
@@ -22,10 +24,6 @@ module.exports = function(app, passport, auth){
         failureFlash: true,
         successFlash: 'Successfully logged in'
       }), user.login_callback)
-
-  app.post('/users/logout', user.logout)
-  app.get('/users/login', user.login)
-
   var room = require(controllerPath + 'rooms_controller')
   app.get('/rooms', auth.requiresLogin, room.index)
   app.get('/rooms.json', auth.requiresLogin, room.index)
