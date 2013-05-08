@@ -27,10 +27,6 @@ module.exports = function(io) {
         })
         .on('new', function(data) {
 
-          if (!socket.handshake.user.hasRole('room-creation')) {
-            return;
-          }
-
           var roomId = data.roomId
               , userId = socket.handshake.user.id
 
@@ -63,6 +59,10 @@ module.exports = function(io) {
     .on('connection', function(socket) {
       socket
         .on('new room', function(data) {
+
+          if (!socket.handshake.user.hasRole('room-creation')) {
+            return;
+          }
 
           var roomBody = {
             title: data.title
