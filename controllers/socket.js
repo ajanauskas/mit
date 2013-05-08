@@ -11,6 +11,7 @@ module.exports = function(io) {
     .on('connection', function(socket){
       socket
         .on('all', function(data){
+
           var roomId = data.roomId
 
           Message
@@ -25,6 +26,11 @@ module.exports = function(io) {
 
         })
         .on('new', function(data) {
+
+          if (!socket.handshake.user.hasRole('room-creation')) {
+            return;
+          }
+
           var roomId = data.roomId
               , userId = socket.handshake.user.id
 
@@ -75,7 +81,7 @@ module.exports = function(io) {
         })
         .on('destroyed room', function(data) {
 
-          if (!socket.handshake.user.hasRole('room_deletion')) {
+          if (!socket.handshake.user.hasRole('room-deletion')) {
             return;
           }
 

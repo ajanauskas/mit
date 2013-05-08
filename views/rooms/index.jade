@@ -2,7 +2,10 @@ extends ../base_layout
 
 block sidebar
   h4 Chat rooms
-  div#js-rooms-container(data-delete-rooms="#{user.hasRole('room-deletion')}")
+  div#js-rooms-container(
+    data-delete-rooms="#{user.hasRole('room-deletion')}",
+    data-create-rooms="#{user.hasRole('room-creation')}"
+  )
 
 block content
   div#js-chat-container

@@ -12,6 +12,8 @@ module.exports.index = function(request, response) {
       Room
         .find({})
         .select('title _id')
+        .limit(20)
+        .sort({ title: 1})
         .exec(function(error, rooms){
           response.send(JSON.stringify(rooms))
         })
@@ -23,6 +25,8 @@ module.exports.index = function(request, response) {
       Room
         .find({})
         .select('title _id')
+        .limit(20)
+        .sort({ title: 1})
         .exec(function(error, rooms){
           _.each(rooms, function(room) {
             room.title = helpers.htmlEscape(room.title);

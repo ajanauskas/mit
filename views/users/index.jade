@@ -24,7 +24,7 @@ block append templates
   #user-management-template
     h2 User {{ login }}
     form(action='/users/{{ _id }}/edit', method='post')
-      roles = ['user-management', 'room-deletion']
+      roles = ['user-management', 'room-deletion', 'room-creation']
       h3 User roles
       each role in roles
         label.checkbox(for='user_role_#{role}')

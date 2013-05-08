@@ -284,6 +284,7 @@
       this.rooms = options.rooms;
 
       this.roomDeletionView = this.$el.data('delete-rooms');
+      this.roomCreationView = this.$el.data('create-rooms');
 
       this.$container = $("<ul class='nav nav-pills nav-stacked'></ul>");
       this.$newRoomButton = $("<button class='new-room-button btn pull-right'><i class='icon-plus'></i>New chat room</button>");
@@ -299,8 +300,11 @@
 
       this.$container.html('');
       this.$el.append(this.$container);
-      this.$el.append(this.$newRoomButton);
-      this.$el.append(this.$newRoomInput);
+
+      if (this.roomCreationView) {
+        this.$el.append(this.$newRoomButton);
+        this.$el.append(this.$newRoomInput);
+      }
 
       this.$el.addClass('clearfix');
 
